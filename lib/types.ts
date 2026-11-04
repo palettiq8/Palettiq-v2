@@ -32,7 +32,6 @@ export interface Palette {
     long_description: string;
     tagline: string;
     story: string;
-    collection: string;
     author: string;
     best_for: string;
   };

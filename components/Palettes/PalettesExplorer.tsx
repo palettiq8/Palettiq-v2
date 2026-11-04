@@ -2,14 +2,9 @@
 
 import { usePalettes } from "@/hooks/queries/usePalettes";
 import { PaletteColor } from "@/lib/types";
-import { useEffect } from "react";
 
 export default function PalettesExplorer() {
   const { data: palettes, isPending, isError, error} = usePalettes();
-
-  useEffect(() => {
-    console.log(palettes);
-  }, [palettes])
 
   if (isPending) {
     return (
