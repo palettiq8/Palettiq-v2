@@ -38,7 +38,6 @@ export interface Palette {
   colors: PaletteColor[];
   filters: Record<
     | "industries"
-    | "color_families"
     | "moods"
     | "emotions"
     | "psychologies"
@@ -55,6 +54,8 @@ export interface Palette {
     | "saturation_levels"
     | "contrast_levels",
     string[]
-  >;
+  > & {
+    color_families: ColorFamily[];
+  };
   stats: { saves: number; favorites: number; downloads: number };
 }
