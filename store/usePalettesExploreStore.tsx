@@ -71,7 +71,7 @@ export const PALETTE_FILTER_GROUPS = [
 ] as const;
 
 export const SORT_OPTIONS = [
-  { value: "featured", label: "Featured" },
+  { value: "all", label: "All" },
   { value: "trending", label: "Trending" },
   { value: "popular", label: "Most popular" },
   { value: "saved", label: "Most saved" },
@@ -160,7 +160,7 @@ export const usePalettesExploreStore = create<PalettesExploreState>(
         0,
       ),
 
-    sortBy: "featured",
+    sortBy: "all",
 
     setSortBy: (sortBy) => set({ sortBy }),
   }),

@@ -59,15 +59,18 @@ export default function PalettesExplorer() {
     (state) => state.appliedFilters,
   );
 
+  const sortBy = usePalettesExploreStore((state) => state.sortBy);
+
   // Reset pagination when applied filters change.
   useEffect(() => {
     setPage(1);
-  }, [appliedFilters]);
+  }, [appliedFilters, sortBy]);
 
   const pageSize = 30;
 
   const { data, isPending, isError, error, isPlaceholderData } = usePalettes({
     filters: appliedFilters,
+    sortBy,
     page,
     pageSize,
   });

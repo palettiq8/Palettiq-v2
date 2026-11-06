@@ -247,7 +247,12 @@ export type Database = {
     }
     Functions: {
       get_filtered_palettes: {
-        Args: { p_filters?: Json; p_page?: number; p_page_size?: number }
+        Args: {
+          p_filters?: Json
+          p_page?: number
+          p_page_size?: number
+          p_sort_by?: string
+        }
         Returns: {
           palette_id: number
           total_count: number

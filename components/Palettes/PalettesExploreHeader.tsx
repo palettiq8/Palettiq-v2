@@ -27,7 +27,7 @@ import { HorizontalWheel } from "../HorizontalWheel";
 import { usePalettesExploreStore } from "@/store/usePalettesExploreStore";
 
 const SORT_OPTIONS = [
-  { value: "featured", label: "Featured", icon: SparklesIcon },
+  { value: "all", label: "All", icon: SparklesIcon },
   { value: "trending", label: "Trending", icon: TrendingUpIcon },
   { value: "popular", label: "Most popular", icon: FlameIcon },
   { value: "saved", label: "Most saved", icon: BookmarkIcon },
