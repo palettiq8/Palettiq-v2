@@ -5,7 +5,6 @@ import { useTheme } from "next-themes";
 import {
   Search,
   LogOutIcon,
-  PaletteIcon,
   BookmarkIcon,
   StarIcon,
   User2Icon,
@@ -37,9 +36,12 @@ import {
   DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
+import { useAuth } from "@/hooks/useAuth";
+import SavePalettesDialog from "@/components/Auth/SavePalettesDialog";
 
 export default function Header() {
   const { theme, setTheme } = useTheme();
+  const { user, isAuthenticated, isLoading, signOut } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 flex w-full items-center justify-between px-6 py-4 bg-background/80 backdrop-blur-xl">
@@ -53,76 +55,85 @@ export default function Header() {
             priority
           />
         </Link>
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <Avatar>
-                  <AvatarImage
-                    src="https://github.com/shadcn.png"
-                    alt="Profile"
-                  />
-                  <AvatarFallback>LR</AvatarFallback>
-                </Avatar>
-              </Button>
-            }
-          />
+        {!isLoading && isAuthenticated && user && (
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <Avatar>
+                    <AvatarImage
+                      src={user.user_metadata?.avatar_url ?? ""}
+                      alt="Profile"
+                    />
+                    <AvatarFallback>
+                      {user.email?.charAt(0).toUpperCase() ?? "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              }
+            />
 
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <User2Icon />
-                Account
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuGroup>
+                <DropdownMenuItem>
+                  <User2Icon />
+                  Account
+                </DropdownMenuItem>
+
+                <DropdownMenuItem>
+                  <BookmarkIcon />
+                  Saved
+                </DropdownMenuItem>
+
+                <DropdownMenuItem>
+                  <StarIcon />
+                  Favorites
+                </DropdownMenuItem>
+
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <SunMoonIcon />
+                    Appearance
+                  </DropdownMenuSubTrigger>
+
+                  <DropdownMenuSubContent className="w-40">
+                    <DropdownMenuRadioGroup
+                      value={theme ?? "system"}
+                      onValueChange={setTheme}
+                    >
+                      <DropdownMenuRadioItem value="light">
+                        <Sun />
+                        Light
+                      </DropdownMenuRadioItem>
+
+                      <DropdownMenuRadioItem value="dark">
+                        <Moon />
+                        Dark
+                      </DropdownMenuRadioItem>
+
+                      <DropdownMenuRadioItem value="system">
+                        <Monitor />
+                        System
+                      </DropdownMenuRadioItem>
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+              </DropdownMenuGroup>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem
+                variant="destructive"
+                onClick={() => {
+                  void signOut().catch(console.error);
+                }}
+              >
+                <LogOutIcon />
+                Sign Out
               </DropdownMenuItem>
-
-              <DropdownMenuItem>
-                <BookmarkIcon />
-                Saved
-              </DropdownMenuItem>
-
-              <DropdownMenuItem>
-                <StarIcon />
-                Favorites
-              </DropdownMenuItem>
-
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger>
-                  <SunMoonIcon />
-                  Appearance
-                </DropdownMenuSubTrigger>
-
-                <DropdownMenuSubContent className="w-40">
-                  <DropdownMenuRadioGroup
-                    value={theme ?? "system"}
-                    onValueChange={setTheme}
-                  >
-                    <DropdownMenuRadioItem value="light">
-                      <Sun />
-                      Light
-                    </DropdownMenuRadioItem>
-
-                    <DropdownMenuRadioItem value="dark">
-                      <Moon />
-                      Dark
-                    </DropdownMenuRadioItem>
-
-                    <DropdownMenuRadioItem value="system">
-                      <Monitor />
-                      System
-                    </DropdownMenuRadioItem>
-                  </DropdownMenuRadioGroup>
-                </DropdownMenuSubContent>
-              </DropdownMenuSub>
-            </DropdownMenuGroup>
-
-            <DropdownMenuSeparator />
-
-            <DropdownMenuItem variant="destructive">
-              <LogOutIcon />
-              Sign Out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
         <InputGroup className="w-xs">
           <InputGroupInput placeholder="Search palettes..." />
           <InputGroupAddon>
@@ -135,10 +146,7 @@ export default function Header() {
         <Button size={"icon"} variant={"outline"}>
           <MessageSquareWarning />
         </Button>
-        <Button>
-          <PaletteIcon />
-          Save my palettes
-        </Button>
+        {!isLoading && !isAuthenticated && <SavePalettesDialog />}
       </div>
     </header>
   );

@@ -14,3 +14,4 @@ export type ColorRole =
   | "warning"
   | "error"
   | "info";
+export type PaletteActivityType = "save" | "favorite" | "download";

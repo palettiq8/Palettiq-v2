@@ -22,13 +22,25 @@ export const PALETTE_FILTER_GROUPS = [
   {
     label: "Color Characteristics",
     categories: [
-      { key: "color_families", label: "Color Families", options: COLOR_FAMILIES.map((item) => item.name) },
+      {
+        key: "color_families",
+        label: "Color Families",
+        options: COLOR_FAMILIES.map((item) => item.name),
+      },
       { key: "modes", label: "Modes", options: MODES },
       { key: "harmonies", label: "Color Harmonies", options: HARMONIES },
       { key: "temperatures", label: "Temperatures", options: TEMPERATURES },
       { key: "tones", label: "Tones", options: TONES },
-      { key: "brightness_levels", label: "Brightness", options: BRIGHTNESS_LEVELS },
-      { key: "saturation_levels", label: "Saturation", options: SATURATION_LEVELS },
+      {
+        key: "brightness_levels",
+        label: "Brightness",
+        options: BRIGHTNESS_LEVELS,
+      },
+      {
+        key: "saturation_levels",
+        label: "Saturation",
+        options: SATURATION_LEVELS,
+      },
       { key: "contrast_levels", label: "Contrast", options: CONTRAST_LEVELS },
     ],
   },
@@ -58,6 +70,18 @@ export const PALETTE_FILTER_GROUPS = [
   },
 ] as const;
 
+export const SORT_OPTIONS = [
+  { value: "featured", label: "Featured" },
+  { value: "trending", label: "Trending" },
+  { value: "popular", label: "Most popular" },
+  { value: "saved", label: "Most saved" },
+  { value: "downloaded", label: "Most downloaded" },
+  { value: "recent", label: "Recently added" },
+  { value: "oldest", label: "Oldest" },
+] as const;
+
+export type SortValue = (typeof SORT_OPTIONS)[number]["value"];
+
 export type PaletteFilterKey =
   (typeof PALETTE_FILTER_GROUPS)[number]["categories"][number]["key"];
 
@@ -83,16 +107,28 @@ const INITIAL_FILTERS: PaletteFilters = {
   eras: [],
 };
 
+const cloneFilters = (filters: PaletteFilters): PaletteFilters =>
+  Object.fromEntries(
+    Object.entries(filters).map(([key, values]) => [key, [...values]]),
+  ) as PaletteFilters;
+
 interface PalettesExploreState {
   filters: PaletteFilters;
+  appliedFilters: PaletteFilters;
+
   toggleFilter: (key: PaletteFilterKey, value: string) => void;
+  applyFilters: () => void;
   clearFilters: () => void;
   getActiveFilterCount: () => number;
+
+  sortBy: SortValue;
+  setSortBy: (sort: SortValue) => void;
 }
 
 export const usePalettesExploreStore = create<PalettesExploreState>(
   (set, get) => ({
-    filters: INITIAL_FILTERS,
+    filters: cloneFilters(INITIAL_FILTERS),
+    appliedFilters: cloneFilters(INITIAL_FILTERS),
 
     toggleFilter: (key, value) =>
       set((state) => {
@@ -108,12 +144,24 @@ export const usePalettesExploreStore = create<PalettesExploreState>(
         };
       }),
 
-    clearFilters: () => set({ filters: INITIAL_FILTERS }),
+    applyFilters: () =>
+      set((state) => ({
+        appliedFilters: cloneFilters(state.filters),
+      })),
+
+    clearFilters: () =>
+      set({
+        filters: cloneFilters(INITIAL_FILTERS),
+      }),
 
     getActiveFilterCount: () =>
       Object.values(get().filters).reduce(
         (total, selected) => total + selected.length,
         0,
       ),
+
+    sortBy: "featured",
+
+    setSortBy: (sortBy) => set({ sortBy }),
   }),
 );

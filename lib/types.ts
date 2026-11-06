@@ -1,4 +1,9 @@
-import { ColorRole, PaletteCreationMethod, PaletteStatus } from "./constants";
+import {
+  ColorRole,
+  PaletteActivityType,
+  PaletteCreationMethod,
+  PaletteStatus,
+} from "./constants";
 
 export interface ColorFamily {
   name: string;
@@ -36,6 +41,13 @@ export interface PaletteStats {
   saves: number;
   favorites: number;
   downloads: number;
+}
+
+export interface PaletteActivity {
+  id: number;
+  palette_id: number;
+  activity_type: PaletteActivityType;
+  created_at: string;
 }
 
 export type StringFilterKey =

@@ -2,14 +2,25 @@ import { createClient } from "@/lib/supabase/client";
 
 type PaletteQueryFilters = Record<string, string[]>;
 
-export async function fetchPalettes(filters: PaletteQueryFilters = {}) {
+interface FetchPalettesParams {
+  filters: PaletteQueryFilters;
+  page: number;
+  pageSize: number;
+}
+
+export async function fetchPalettes({
+  filters,
+  page,
+  pageSize,
+}: FetchPalettesParams) {
   const supabase = createClient();
 
-  // First, get matching palette IDs from the RPC.
   const { data: matchedPalettes, error: filterError } = await supabase.rpc(
     "get_filtered_palettes",
     {
       p_filters: filters,
+      p_page: page,
+      p_page_size: pageSize,
     },
   );
 
@@ -17,14 +28,19 @@ export async function fetchPalettes(filters: PaletteQueryFilters = {}) {
     throw new Error(filterError.message);
   }
 
-  const paletteIds: number[] = matchedPalettes.map(
-    ({ id }: { id: number }) => id,
-  );
+  const results = matchedPalettes ?? [];
+
+  const totalCount = results[0]?.total_count ?? 0;
+
+  const paletteIds = results.map(({ palette_id }) => palette_id);
+
   if (paletteIds.length === 0) {
-    return [];
+    return {
+      palettes: [],
+      totalCount,
+    };
   }
 
-  // Then fetch complete palette data with relationships.
   const { data, error } = await supabase
     .from("palettes")
     .select(
@@ -36,12 +52,23 @@ export async function fetchPalettes(filters: PaletteQueryFilters = {}) {
     `,
     )
     .in("id", paletteIds)
-    .eq("status", "published")
-    .order("created_at", { ascending: false });
+    .eq("status", "published");
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return data;
+  // Preserve the ordering returned by the RPC.
+  const paletteMap = new Map(
+    (data ?? []).map((palette) => [palette.id, palette]),
+  );
+
+  const palettes = paletteIds
+    .map((id) => paletteMap.get(id))
+    .filter((palette) => palette !== undefined);
+
+  return {
+    palettes,
+    totalCount,
+  };
 }
