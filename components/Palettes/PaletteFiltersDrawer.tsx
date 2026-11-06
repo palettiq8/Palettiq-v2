@@ -73,6 +73,7 @@ export default function PaletteFiltersDrawer() {
           <Button
             size="lg"
             className="fixed bottom-[max(1.5rem,env(safe-area-inset-bottom))] left-1/2 z-50 -translate-x-1/2 gap-2 rounded-full shadow-lg"
+            variant={"secondary"}
           >
             <SlidersHorizontal className="size-4" />
             Filters

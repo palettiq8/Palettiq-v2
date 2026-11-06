@@ -10,14 +10,14 @@ import {
   EmptyMedia,
 } from "../ui/empty";
 import { PaletteIcon } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton"
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function PalettesExplorer() {
   const { data: palettes, isPending, isError, error } = usePalettes();
 
   if (isPending) {
     return (
-      <div className="w-full px-6 py-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="w-full p-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Skeleton className="w-full h-40 rounded-xl" />
         <Skeleton className="w-full h-40 rounded-xl" />
         <Skeleton className="w-full h-40 rounded-xl" />
@@ -36,7 +36,7 @@ export default function PalettesExplorer() {
 
   if (isError) {
     return (
-      <div className="w-full px-6 py-8">
+      <div className="w-full p-6">
         <p className="text-destructive">
           Failed to load palettes: {error.message}
         </p>
@@ -46,7 +46,7 @@ export default function PalettesExplorer() {
 
   if (!palettes?.length) {
     return (
-      <div className="w-full px-6 py-8 grid place-content-center">
+      <div className="w-full p-6 grid place-content-center">
         <Empty className="border border-dashed">
           <EmptyHeader>
             <EmptyMedia variant="icon">
@@ -54,7 +54,8 @@ export default function PalettesExplorer() {
             </EmptyMedia>
             <EmptyTitle>No palettes found</EmptyTitle>
             <EmptyDescription>
-              Adjust your search or filters to find palettes that match your taste.
+              Adjust your search or filters to find palettes that match your
+              taste.
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
@@ -63,7 +64,7 @@ export default function PalettesExplorer() {
   }
 
   return (
-    <div className="w-full px-6 py-8">
+    <div className="w-full p-6">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {palettes.map((palette) => (
           <div
