@@ -38,6 +38,7 @@ import {
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import SavePalettesDialog from "@/components/Auth/SavePalettesDialog";
+import { ThemeToggle } from "../ThemeToggle";
 
 export default function Header() {
   const { theme, setTheme } = useTheme();
@@ -89,35 +90,6 @@ export default function Header() {
                   <StarIcon />
                   Favorites
                 </DropdownMenuItem>
-
-                <DropdownMenuSub>
-                  <DropdownMenuSubTrigger>
-                    <SunMoonIcon />
-                    Appearance
-                  </DropdownMenuSubTrigger>
-
-                  <DropdownMenuSubContent className="w-40">
-                    <DropdownMenuRadioGroup
-                      value={theme ?? "system"}
-                      onValueChange={setTheme}
-                    >
-                      <DropdownMenuRadioItem value="light">
-                        <Sun />
-                        Light
-                      </DropdownMenuRadioItem>
-
-                      <DropdownMenuRadioItem value="dark">
-                        <Moon />
-                        Dark
-                      </DropdownMenuRadioItem>
-
-                      <DropdownMenuRadioItem value="system">
-                        <Monitor />
-                        System
-                      </DropdownMenuRadioItem>
-                    </DropdownMenuRadioGroup>
-                  </DropdownMenuSubContent>
-                </DropdownMenuSub>
               </DropdownMenuGroup>
 
               <DropdownMenuSeparator />
@@ -143,6 +115,7 @@ export default function Header() {
       </div>
 
       <div className="flex items-center gap-3">
+        <ThemeToggle />
         <Button size={"icon"} variant={"outline"}>
           <MessageSquareWarning />
         </Button>
