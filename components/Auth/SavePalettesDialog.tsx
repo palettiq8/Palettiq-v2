@@ -57,7 +57,7 @@ export default function SavePalettesDialog() {
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger
         render={
-          <Button>
+          <Button variant={"outline"}>
             <Mail />
             Save my palettes
           </Button>

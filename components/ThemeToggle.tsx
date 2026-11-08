@@ -30,7 +30,7 @@ export function ThemeToggle() {
       <DropdownMenuTrigger
         render={
           <Button variant="outline" size="icon" aria-label="Change appearance">
-            <ActiveIcon className="size-5" />
+            <ActiveIcon />
           </Button>
         }
       />

@@ -30,6 +30,7 @@ import { useAuth } from "@/hooks/useAuth";
 import SavePalettesDialog from "@/components/Auth/SavePalettesDialog";
 import { ThemeToggle } from "../ThemeToggle";
 import { usePalettesExploreStore } from "@/store/usePalettesExploreStore";
+import PaletteFiltersDrawer from "@/components/Palettes/PaletteFiltersDrawer";
 
 export default function Header() {
   const { user, isAuthenticated, isLoading, signOut } = useAuth();
@@ -103,7 +104,7 @@ export default function Header() {
         )}
         <InputGroup className="w-xs">
           <InputGroupInput
-            placeholder="Search palettes..."
+            placeholder="Search palettes by name..."
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
           />
@@ -119,6 +120,7 @@ export default function Header() {
           <MessageSquareWarning />
         </Button>
         {!isLoading && !isAuthenticated && <SavePalettesDialog />}
+        <PaletteFiltersDrawer />
       </div>
     </header>
   );

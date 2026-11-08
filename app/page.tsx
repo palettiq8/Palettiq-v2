@@ -1,5 +1,4 @@
 import PalettesExploreHeader from "@/components/Palettes/PalettesExploreHeader";
-import PaletteFiltersDrawer from "@/components/Palettes/PaletteFiltersDrawer";
 import Header from "@/components/Home/Header";
 import PalettesExplorer from "@/components/Palettes/PalettesExplorer";
 
@@ -9,7 +8,6 @@ export default function page() {
       <Header />
       <PalettesExploreHeader />
       <PalettesExplorer />
-      <PaletteFiltersDrawer />
     </div>
   );
 }
