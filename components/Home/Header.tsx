@@ -42,7 +42,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 flex w-full items-center justify-between px-6 py-4 bg-background/80 backdrop-blur-xl">
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         <Link href={"/"}>
           <Image
             src="/logo.svg"
@@ -114,7 +114,7 @@ export default function Header() {
         </InputGroup>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         <ThemeToggle />
         <Button size={"icon"} variant={"outline"}>
           <MessageSquareWarning />
