@@ -6,6 +6,7 @@ type PaletteQueryFilters = Record<string, string[]>;
 interface FetchPalettesParams {
   filters: PaletteQueryFilters;
   sortBy: SortValue;
+  search: string;
   page: number;
   pageSize: number;
 }
@@ -13,6 +14,7 @@ interface FetchPalettesParams {
 export async function fetchPalettes({
   filters,
   sortBy,
+  search,
   page,
   pageSize,
 }: FetchPalettesParams) {
@@ -23,6 +25,7 @@ export async function fetchPalettes({
     {
       p_filters: filters,
       p_sort_by: sortBy,
+      p_search: search,
       p_page: page,
       p_page_size: pageSize,
     },

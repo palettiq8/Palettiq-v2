@@ -1,17 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { useTheme } from "next-themes";
 import {
   Search,
   LogOutIcon,
   BookmarkIcon,
   StarIcon,
   User2Icon,
-  Sun,
-  Moon,
-  Monitor,
-  SunMoonIcon,
   MessageSquareWarning,
 } from "lucide-react";
 
@@ -29,20 +24,20 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import SavePalettesDialog from "@/components/Auth/SavePalettesDialog";
 import { ThemeToggle } from "../ThemeToggle";
+import { usePalettesExploreStore } from "@/store/usePalettesExploreStore";
 
 export default function Header() {
-  const { theme, setTheme } = useTheme();
   const { user, isAuthenticated, isLoading, signOut } = useAuth();
+
+  const searchQuery = usePalettesExploreStore((state) => state.searchQuery);
+  const setSearchQuery = usePalettesExploreStore(
+    (state) => state.setSearchQuery,
+  );
 
   return (
     <header className="sticky top-0 z-50 flex w-full items-center justify-between px-6 py-4 bg-background/80 backdrop-blur-xl">
@@ -107,7 +102,11 @@ export default function Header() {
           </DropdownMenu>
         )}
         <InputGroup className="w-xs">
-          <InputGroupInput placeholder="Search palettes..." />
+          <InputGroupInput
+            placeholder="Search palettes..."
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+          />
           <InputGroupAddon>
             <Search />
           </InputGroupAddon>

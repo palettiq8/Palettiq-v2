@@ -58,19 +58,29 @@ export default function PalettesExplorer() {
   const appliedFilters = usePalettesExploreStore(
     (state) => state.appliedFilters,
   );
-
   const sortBy = usePalettesExploreStore((state) => state.sortBy);
+  const searchQuery = usePalettesExploreStore((state) => state.searchQuery);
 
-  // Reset pagination when applied filters change.
+  const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
+
   useEffect(() => {
     setPage(1);
-  }, [appliedFilters, sortBy]);
+  }, [appliedFilters, sortBy, debouncedSearch]);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDebouncedSearch(searchQuery.trim());
+    }, 300);
+
+    return () => clearTimeout(timeout);
+  }, [searchQuery]);
 
   const pageSize = 30;
 
-  const { data, isPending, isError, error, isPlaceholderData } = usePalettes({
+  const { data, isPending, isError, error } = usePalettes({
     filters: appliedFilters,
     sortBy,
+    search: debouncedSearch,
     page,
     pageSize,
   });

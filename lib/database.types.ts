@@ -251,6 +251,7 @@ export type Database = {
           p_filters?: Json
           p_page?: number
           p_page_size?: number
+          p_search?: string
           p_sort_by?: string
         }
         Returns: {

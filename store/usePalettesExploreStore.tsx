@@ -123,6 +123,8 @@ interface PalettesExploreState {
 
   sortBy: SortValue;
   setSortBy: (sort: SortValue) => void;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
 }
 
 export const usePalettesExploreStore = create<PalettesExploreState>(
@@ -161,7 +163,8 @@ export const usePalettesExploreStore = create<PalettesExploreState>(
       ),
 
     sortBy: "all",
-
     setSortBy: (sortBy) => set({ sortBy }),
+    searchQuery: "",
+    setSearchQuery: (searchQuery) => set({ searchQuery }),
   }),
 );
