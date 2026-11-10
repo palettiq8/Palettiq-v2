@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { ArrowLeft, CheckCircle2, Loader2, Mail } from "lucide-react";
+import { ArrowLeft, Bookmark, CheckCircle2, Loader2, Mail } from "lucide-react";
 
 import { sendMagicLink } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
@@ -58,7 +58,7 @@ export default function SavePalettesDialog() {
       <DialogTrigger
         render={
           <Button variant={"outline"}>
-            <Mail />
+            <Bookmark />
             Save my palettes
           </Button>
         }

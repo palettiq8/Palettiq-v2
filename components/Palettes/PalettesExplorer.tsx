@@ -9,7 +9,21 @@ import {
   EmptyDescription,
   EmptyMedia,
 } from "../ui/empty";
-import { PaletteIcon } from "lucide-react";
+import {
+  Activity,
+  Bookmark,
+  Clipboard,
+  Columns3,
+  Copy,
+  DownloadIcon,
+  EllipsisVertical,
+  Eye,
+  Maximize2,
+  PaletteIcon,
+  Star,
+  TextSearch,
+  View,
+} from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   usePalettesExploreStore,
@@ -30,6 +44,20 @@ import {
   parsePaletteExploreUrl,
   serializePaletteExploreUrl,
 } from "@/lib/utils/palette-explore-url";
+import { formatRelativeTime } from "@/lib/utils";
+import { Button } from "../ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "../ui/badge";
 
 type PaginationItem = number | "ellipsis";
 
@@ -271,11 +299,116 @@ export default function PalettesExplorer() {
             </div>
 
             <div className="p-4">
-              <h3 className="font-semibold">{palette.identity?.name}</h3>
+              <div className="w-full flex items-center justify-between">
+                <h3 className="font-semibold">{palette.identity?.name}</h3>
+                <div className="flex items-center gap-2">
+                  <Button variant={"outline"} size={"icon"}>
+                    <Star />
+                  </Button>
+                  <Button variant={"outline"} size={"icon"}>
+                    <Bookmark />
+                  </Button>
+                  <Button variant={"outline"} size={"icon"}>
+                    <DownloadIcon />
+                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger
+                      render={
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          aria-label="More palette options"
+                        >
+                          <EllipsisVertical />
+                        </Button>
+                      }
+                    />
+
+                    <DropdownMenuContent>
+                      <DropdownMenuGroup>
+                        <DropdownMenuItem>
+                          <Copy />
+                          Copy
+                        </DropdownMenuItem>
+
+                        <DropdownMenuSub>
+                          <DropdownMenuSubTrigger>
+                            <Clipboard />
+                            Copy as
+                          </DropdownMenuSubTrigger>
+
+                          <DropdownMenuSubContent>
+                            <DropdownMenuItem>HEX</DropdownMenuItem>
+                            <DropdownMenuItem>HEX (Without #)</DropdownMenuItem>
+                            <DropdownMenuItem>RGB</DropdownMenuItem>
+                            <DropdownMenuItem>RGBA</DropdownMenuItem>
+                            <DropdownMenuItem>HSL</DropdownMenuItem>
+                            <DropdownMenuItem>HSLA</DropdownMenuItem>
+                            <DropdownMenuItem>HSV / HSB</DropdownMenuItem>
+                            <DropdownMenuItem>CMYK</DropdownMenuItem>
+                            <DropdownMenuItem>LAB</DropdownMenuItem>
+                            <DropdownMenuItem>LCH</DropdownMenuItem>
+                            <DropdownMenuItem>OKLAB</DropdownMenuItem>
+                            <DropdownMenuItem>OKLCH</DropdownMenuItem>
+
+                            <DropdownMenuSeparator />
+
+                            <DropdownMenuItem>CSS Variables</DropdownMenuItem>
+                            <DropdownMenuItem>SCSS Variables</DropdownMenuItem>
+                            <DropdownMenuItem>Tailwind CSS</DropdownMenuItem>
+                            <DropdownMenuItem>JSON</DropdownMenuItem>
+                            <DropdownMenuItem>
+                              JavaScript Array
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>Swift</DropdownMenuItem>
+                            <DropdownMenuItem>Android XML</DropdownMenuItem>
+                          </DropdownMenuSubContent>
+                        </DropdownMenuSub>
+
+                        <DropdownMenuItem>
+                          <Eye />
+                          Quick view
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem>
+                          <View />
+                          View details
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem>
+                          <Maximize2 />
+                          Open on screen
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem>
+                          <Columns3 />
+                          View mode
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem>
+                          <Activity />
+                          Visualize palette
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem>
+                          <TextSearch />
+                          Explore similar
+                        </DropdownMenuItem>
+                      </DropdownMenuGroup>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
 
               <p className="mt-1 text-sm text-muted-foreground">
                 {palette.identity?.short_description}
               </p>
+              <div className="w-full flex items-center justify-between mt-3">
+                <span className="truncate text-xs text-muted-foreground">
+                  {formatRelativeTime(palette.created_at)}
+                </span>
+                <Badge variant={"secondary"}>{palette.creation_method}</Badge>
+              </div>
             </div>
           </div>
         ))}
