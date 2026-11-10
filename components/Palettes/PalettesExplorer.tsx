@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePalettes } from "@/hooks/queries/usePalettes";
 import {
   Empty,
@@ -11,7 +11,11 @@ import {
 } from "../ui/empty";
 import { PaletteIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { usePalettesExploreStore } from "@/store/usePalettesExploreStore";
+import {
+  usePalettesExploreStore,
+  type PaletteFilters,
+  type SortValue,
+} from "@/store/usePalettesExploreStore";
 
 import {
   Pagination,
@@ -22,6 +26,10 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import {
+  parsePaletteExploreUrl,
+  serializePaletteExploreUrl,
+} from "@/lib/utils/palette-explore-url";
 
 type PaginationItem = number | "ellipsis";
 
@@ -54,6 +62,7 @@ function getPaginationItems(
 
 export default function PalettesExplorer() {
   const [page, setPage] = useState(1);
+  const [isUrlInitialized, setIsUrlInitialized] = useState(false);
 
   const appliedFilters = usePalettesExploreStore(
     (state) => state.appliedFilters,
@@ -61,11 +70,52 @@ export default function PalettesExplorer() {
   const sortBy = usePalettesExploreStore((state) => state.sortBy);
   const searchQuery = usePalettesExploreStore((state) => state.searchQuery);
 
+  const setExploreStateFromUrl = usePalettesExploreStore(
+    (state) => state.setExploreStateFromUrl,
+  );
+
   const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
 
+  const previousQueryStateRef = useRef<{
+    filters: PaletteFilters;
+    sortBy: SortValue;
+    searchQuery: string;
+  } | null>(null);
+
   useEffect(() => {
-    setPage(1);
-  }, [appliedFilters, sortBy, debouncedSearch]);
+    const restoreFromUrl = () => {
+      const params = new URLSearchParams(window.location.search);
+      const urlState = parsePaletteExploreUrl(params);
+
+      previousQueryStateRef.current = {
+        filters: urlState.filters,
+        sortBy: urlState.sortBy,
+        searchQuery: urlState.searchQuery,
+      };
+
+      setExploreStateFromUrl({
+        filters: urlState.filters,
+        sortBy: urlState.sortBy,
+        searchQuery: urlState.searchQuery,
+      });
+
+      setDebouncedSearch(urlState.searchQuery);
+      setPage(urlState.page);
+    };
+
+    restoreFromUrl();
+    setIsUrlInitialized(true);
+
+    window.addEventListener("popstate", restoreFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", restoreFromUrl);
+    };
+  }, [setExploreStateFromUrl]);
+
+  // useEffect(() => {
+  //   setPage(1);
+  // }, [appliedFilters, sortBy, debouncedSearch]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -75,9 +125,64 @@ export default function PalettesExplorer() {
     return () => clearTimeout(timeout);
   }, [searchQuery]);
 
+  useEffect(() => {
+    if (!isUrlInitialized) return;
+
+    const previous = previousQueryStateRef.current;
+
+    const filtersChanged = previous
+      ? JSON.stringify(previous.filters) !== JSON.stringify(appliedFilters)
+      : false;
+
+    const sortChanged = previous ? previous.sortBy !== sortBy : false;
+
+    const searchChanged = previous
+      ? previous.searchQuery !== debouncedSearch
+      : false;
+
+    const queryChanged = filtersChanged || sortChanged || searchChanged;
+
+    const nextPage = queryChanged ? 1 : page;
+
+    if (queryChanged) {
+      setPage(1);
+    }
+
+    const queryString = serializePaletteExploreUrl({
+      filters: appliedFilters,
+      sortBy,
+      searchQuery: debouncedSearch,
+      page: nextPage,
+    });
+
+    const nextUrl = `${window.location.pathname}${
+      queryString ? `?${queryString}` : ""
+    }${window.location.hash}`;
+
+    const currentUrl =
+      window.location.pathname + window.location.search + window.location.hash;
+
+    if (nextUrl !== currentUrl) {
+      const isSearchOnlyChange =
+        searchChanged && !filtersChanged && !sortChanged;
+
+      if (isSearchOnlyChange) {
+        window.history.replaceState(null, "", nextUrl);
+      } else {
+        window.history.pushState(null, "", nextUrl);
+      }
+    }
+
+    previousQueryStateRef.current = {
+      filters: appliedFilters,
+      sortBy,
+      searchQuery: debouncedSearch,
+    };
+  }, [isUrlInitialized, appliedFilters, sortBy, debouncedSearch, page]);
+
   const pageSize = 30;
 
-  const { data, isPending, isError, error } = usePalettes({
+  const { data, isPending, isFetching, isError, error } = usePalettes({
     filters: appliedFilters,
     sortBy,
     search: debouncedSearch,
@@ -105,7 +210,7 @@ export default function PalettesExplorer() {
     });
   };
 
-  if (isPending) {
+  if (isPending || isFetching) {
     return (
       <div className="grid w-full grid-cols-1 gap-3 p-6 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 9 }).map((_, index) => (

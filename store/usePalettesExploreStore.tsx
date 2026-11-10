@@ -1,5 +1,15 @@
 import { create } from "zustand";
 
+import {
+  BookmarkIcon,
+  ClockIcon,
+  DownloadIcon,
+  FlameIcon,
+  HistoryIcon,
+  SparklesIcon,
+  TrendingUpIcon,
+} from "lucide-react";
+
 import BRIGHTNESS_LEVELS from "@/lib/filters/brightness_levels";
 import COLOR_FAMILIES from "@/lib/filters/color_families";
 import CONTRAST_LEVELS from "@/lib/filters/contrast_levels";
@@ -71,13 +81,13 @@ export const PALETTE_FILTER_GROUPS = [
 ] as const;
 
 export const SORT_OPTIONS = [
-  { value: "all", label: "All" },
-  { value: "trending", label: "Trending" },
-  { value: "popular", label: "Most popular" },
-  { value: "saved", label: "Most saved" },
-  { value: "downloaded", label: "Most downloaded" },
-  { value: "recent", label: "Recently added" },
-  { value: "oldest", label: "Oldest" },
+  { value: "all", label: "All", icon: SparklesIcon },
+  { value: "trending", label: "Trending", icon: TrendingUpIcon },
+  { value: "popular", label: "Most popular", icon: FlameIcon },
+  { value: "saved", label: "Most saved", icon: BookmarkIcon },
+  { value: "downloaded", label: "Most downloaded", icon: DownloadIcon },
+  { value: "recent", label: "Recently added", icon: ClockIcon },
+  { value: "oldest", label: "Oldest", icon: HistoryIcon },
 ] as const;
 
 export type SortValue = (typeof SORT_OPTIONS)[number]["value"];
@@ -125,6 +135,14 @@ interface PalettesExploreState {
   setSortBy: (sort: SortValue) => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
+
+  toggleAndApplyFilter: (key: PaletteFilterKey, value: string) => void;
+
+  setExploreStateFromUrl: (state: {
+    filters: PaletteFilters;
+    sortBy: SortValue;
+    searchQuery: string;
+  }) => void;
 }
 
 export const usePalettesExploreStore = create<PalettesExploreState>(
@@ -166,5 +184,30 @@ export const usePalettesExploreStore = create<PalettesExploreState>(
     setSortBy: (sortBy) => set({ sortBy }),
     searchQuery: "",
     setSearchQuery: (searchQuery) => set({ searchQuery }),
+
+    toggleAndApplyFilter: (key, value) =>
+      set((state) => {
+        const selected = state.appliedFilters[key];
+
+        const nextFilters = {
+          ...state.appliedFilters,
+          [key]: selected.includes(value)
+            ? selected.filter((item) => item !== value)
+            : [...selected, value],
+        };
+
+        return {
+          filters: cloneFilters(nextFilters),
+          appliedFilters: cloneFilters(nextFilters),
+        };
+      }),
+
+    setExploreStateFromUrl: ({ filters, sortBy, searchQuery }) =>
+      set({
+        filters: cloneFilters(filters),
+        appliedFilters: cloneFilters(filters),
+        sortBy,
+        searchQuery,
+      }),
   }),
 );

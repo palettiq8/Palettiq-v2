@@ -40,7 +40,16 @@ export default function PaletteFiltersDrawer() {
   const clearFilters = usePalettesExploreStore((state) => state.clearFilters);
   const applyFilters = usePalettesExploreStore((state) => state.applyFilters);
 
-  const activeCount = Object.values(filters).reduce(
+  const appliedFilters = usePalettesExploreStore(
+    (state) => state.appliedFilters,
+  );
+
+  const activeCount = Object.values(appliedFilters).reduce(
+    (total, values) => total + values.length,
+    0,
+  );
+
+  const draftFilterCount = Object.values(filters).reduce(
     (total, values) => total + values.length,
     0,
   );
@@ -202,7 +211,7 @@ export default function PaletteFiltersDrawer() {
               variant="outline"
               className="flex-1"
               onClick={clearFilters}
-              disabled={activeCount === 0}
+              disabled={draftFilterCount === 0}
             >
               Clear all
             </Button>
@@ -217,7 +226,7 @@ export default function PaletteFiltersDrawer() {
                   className="flex-1"
                 >
                   Apply Filters
-                  {activeCount > 0 && ` (${activeCount})`}
+                  {draftFilterCount > 0 && ` (${draftFilterCount})`}
                 </Button>
               }
             />

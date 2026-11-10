@@ -1,15 +1,6 @@
 "use client";
 
-import {
-  BookmarkIcon,
-  ChevronDownIcon,
-  ClockIcon,
-  DownloadIcon,
-  FlameIcon,
-  HistoryIcon,
-  SparklesIcon,
-  TrendingUpIcon,
-} from "lucide-react";
+import { ChevronDownIcon } from "lucide-react";
 
 import COLOR_FAMILIES from "@/lib/filters/color_families";
 import { Button } from "@/components/ui/button";
@@ -24,17 +15,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { HorizontalWheel } from "../HorizontalWheel";
-import { usePalettesExploreStore } from "@/store/usePalettesExploreStore";
-
-const SORT_OPTIONS = [
-  { value: "all", label: "All", icon: SparklesIcon },
-  { value: "trending", label: "Trending", icon: TrendingUpIcon },
-  { value: "popular", label: "Most popular", icon: FlameIcon },
-  { value: "saved", label: "Most saved", icon: BookmarkIcon },
-  { value: "downloaded", label: "Most downloaded", icon: DownloadIcon },
-  { value: "recent", label: "Recently added", icon: ClockIcon },
-  { value: "oldest", label: "Oldest", icon: HistoryIcon },
-] as const;
+import {
+  SORT_OPTIONS,
+  usePalettesExploreStore,
+} from "@/store/usePalettesExploreStore";
 
 type SortValue = (typeof SORT_OPTIONS)[number]["value"];
 
@@ -42,8 +26,9 @@ export default function PalettesExploreHeader() {
   const appliedFilters = usePalettesExploreStore(
     (state) => state.appliedFilters,
   );
-  const toggleFilter = usePalettesExploreStore((state) => state.toggleFilter);
-  const applyFilters = usePalettesExploreStore((state) => state.applyFilters);
+  const toggleAndApplyFilter = usePalettesExploreStore(
+    (state) => state.toggleAndApplyFilter,
+  );
 
   const sortBy = usePalettesExploreStore((state) => state.sortBy);
   const setSortBy = usePalettesExploreStore((state) => state.setSortBy);
@@ -62,10 +47,9 @@ export default function PalettesExploreHeader() {
               variant={isActive ? "secondary" : "outline"}
               aria-pressed={isActive}
               className="shrink-0 active:not-aria-[haspopup]:translate-y-0"
-              onClick={() => {
-                toggleFilter("color_families", family.name);
-                applyFilters();
-              }}
+              onClick={() =>
+                toggleAndApplyFilter("color_families", family.name)
+              }
             >
               <span
                 className="size-3 rounded-full ring-1 ring-foreground/25"
