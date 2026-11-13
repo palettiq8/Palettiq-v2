@@ -18,6 +18,7 @@ import {
   DownloadIcon,
   EllipsisVertical,
   Eye,
+  FolderPlus,
   Maximize2,
   PaletteIcon,
   Star,
@@ -58,6 +59,18 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "../ui/badge";
+import {
+  useNormalSavedPalettes,
+  useToggleNormalPaletteSave,
+} from "@/hooks/queries/usePaletteSaves";
+import AddToProjectsDialog from "../Projects/AddToProjectsDialog";
+import {
+  useFavoritePalettes,
+  useSetPaletteFavorite,
+} from "@/hooks/queries/usePaletteFavorites";
+import { toast } from "sonner";
+import { createClient } from "@/lib/supabase/client";
+import { useAuthDialogStore } from "@/store/useAuthDialogStore";
 
 type PaginationItem = number | "ellipsis";
 
@@ -104,6 +117,113 @@ export default function PalettesExplorer() {
 
   const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
 
+  const { data: normalSavedPaletteIds = [] } = useNormalSavedPalettes();
+  const toggleNormalSaveMutation = useToggleNormalPaletteSave();
+
+  const { data: favoritePaletteIds = [] } = useFavoritePalettes();
+
+  const favoriteMutation = useSetPaletteFavorite();
+
+  const [addToProjectsOpen, setAddToProjectsOpen] = useState(false);
+  const [selectedPaletteId, setSelectedPaletteId] = useState<number | null>(
+    null,
+  );
+  const [savingPaletteId, setSavingPaletteId] = useState<number | null>(null);
+  const [favoritingPaletteId, setFavoritingPaletteId] = useState<number | null>(
+    null,
+  );
+  const openAuthDialog = useAuthDialogStore((state) => state.openAuthDialog);
+
+  const checkAuthentication = async () => {
+    const supabase = createClient();
+
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.getSession();
+
+    if (error) {
+      toast.error(error.message);
+      return false;
+    }
+
+    if (!session) {
+      openAuthDialog();
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleToggleNormalSave = async (paletteId: number) => {
+    const isAuthenticated = await checkAuthentication();
+
+    if (!isAuthenticated) return;
+
+    const isSaved = normalSavedPaletteIds.includes(paletteId);
+
+    setSavingPaletteId(paletteId);
+
+    toggleNormalSaveMutation.mutate(
+      {
+        paletteId,
+        isSaved: !isSaved,
+      },
+      {
+        onSuccess: () => {
+          toast.success(
+            isSaved
+              ? "Palette removed from saved."
+              : "Palette saved successfully.",
+          );
+        },
+        onError: (error) => {
+          toast.error(error.message || "Failed to update saved palette.");
+        },
+        onSettled: () => {
+          setSavingPaletteId(null);
+        },
+      },
+    );
+  };
+
+  const handleToggleFavorite = async (paletteId: number) => {
+    const isAuthenticated = await checkAuthentication();
+
+    if (!isAuthenticated) return;
+
+    const isFavorite = favoritePaletteIds.includes(paletteId);
+
+    setFavoritingPaletteId(paletteId);
+
+    favoriteMutation.mutate(
+      {
+        paletteId,
+        isFavorite: !isFavorite,
+      },
+      {
+        onSuccess: () => {
+          toast.success(
+            isFavorite ? "Removed from favorites." : "Added to favorites.",
+          );
+        },
+        onError: (error) => {
+          toast.error(error.message || "Failed to update favorites.");
+        },
+        onSettled: () => {
+          setFavoritingPaletteId(null);
+        },
+      },
+    );
+  };
+
+  const handleAddToProjects = async (paletteId: number) => {
+    if (!(await checkAuthentication())) return;
+
+    setSelectedPaletteId(paletteId);
+    setAddToProjectsOpen(true);
+  };
+
   const previousQueryStateRef = useRef<{
     filters: PaletteFilters;
     sortBy: SortValue;
@@ -140,10 +260,6 @@ export default function PalettesExplorer() {
       window.removeEventListener("popstate", restoreFromUrl);
     };
   }, [setExploreStateFromUrl]);
-
-  // useEffect(() => {
-  //   setPage(1);
-  // }, [appliedFilters, sortBy, debouncedSearch]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -280,138 +396,184 @@ export default function PalettesExplorer() {
   return (
     <div className="w-full p-6">
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-        {palettes.map((palette) => (
-          <div
-            key={palette.id}
-            className="overflow-hidden rounded-xl border bg-card"
-          >
-            <div className="flex h-40">
-              {palette.colors.map((color) => (
-                <div
-                  key={color.id}
-                  className="h-full flex-1"
-                  style={{
-                    backgroundColor: color.hex ?? "transparent",
-                  }}
-                  title={color.hex ?? "Unknown color"}
-                />
-              ))}
-            </div>
+        {palettes.map((palette) => {
+          const isFavorite = favoritePaletteIds.includes(palette.id);
+          const isSaved = normalSavedPaletteIds.includes(palette.id);
+          return (
+            <div
+              key={palette.id}
+              className="overflow-hidden rounded-xl border bg-card"
+            >
+              <div className="flex h-40">
+                {palette.colors.map((color) => (
+                  <div
+                    key={color.id}
+                    className="h-full flex-1"
+                    style={{
+                      backgroundColor: color.hex ?? "transparent",
+                    }}
+                    title={color.hex ?? "Unknown color"}
+                  />
+                ))}
+              </div>
 
-            <div className="p-4">
-              <div className="w-full flex items-center justify-between">
-                <h3 className="font-semibold">{palette.identity?.name}</h3>
-                <div className="flex items-center gap-2">
-                  <Button variant={"outline"} size={"icon"}>
-                    <Star />
-                  </Button>
-                  <Button variant={"outline"} size={"icon"}>
-                    <Bookmark />
-                  </Button>
-                  <Button variant={"outline"} size={"icon"}>
-                    <DownloadIcon />
-                  </Button>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger
-                      render={
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          aria-label="More palette options"
-                        >
-                          <EllipsisVertical />
-                        </Button>
+              <div className="p-4">
+                <div className="w-full flex items-center justify-between">
+                  <h3 className="font-semibold">{palette.identity?.name}</h3>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      aria-label={
+                        isFavorite
+                          ? "Remove from favorites"
+                          : "Add to favorites"
                       }
-                    />
+                      aria-pressed={isFavorite}
+                      onClick={() => handleToggleFavorite(palette.id)}
+                      disabled={favoritingPaletteId === palette.id}
+                    >
+                      <Star
+                        className={
+                          isFavorite
+                            ? "fill-yellow-500 text-yellow-500"
+                            : "text-foreground"
+                        }
+                      />
+                    </Button>
 
-                    <DropdownMenuContent>
-                      <DropdownMenuGroup>
-                        <DropdownMenuItem>
-                          <Copy />
-                          Copy
-                        </DropdownMenuItem>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      aria-label={isSaved ? "Unsave palette" : "Save palette"}
+                      aria-pressed={isSaved}
+                      disabled={savingPaletteId === palette.id}
+                      onClick={() => handleToggleNormalSave(palette.id)}
+                    >
+                      <Bookmark
+                        className={
+                          isSaved
+                            ? "fill-current text-foreground"
+                            : "text-foreground"
+                        }
+                      />
+                    </Button>
+                    <Button variant={"outline"} size={"icon"}>
+                      <DownloadIcon />
+                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger
+                        render={
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            aria-label="More palette options"
+                          >
+                            <EllipsisVertical />
+                          </Button>
+                        }
+                      />
 
-                        <DropdownMenuSub>
-                          <DropdownMenuSubTrigger>
-                            <Clipboard />
-                            Copy as
-                          </DropdownMenuSubTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuGroup>
+                          <DropdownMenuItem>
+                            <Copy />
+                            Copy
+                          </DropdownMenuItem>
 
-                          <DropdownMenuSubContent>
-                            <DropdownMenuItem>HEX</DropdownMenuItem>
-                            <DropdownMenuItem>HEX (Without #)</DropdownMenuItem>
-                            <DropdownMenuItem>RGB</DropdownMenuItem>
-                            <DropdownMenuItem>RGBA</DropdownMenuItem>
-                            <DropdownMenuItem>HSL</DropdownMenuItem>
-                            <DropdownMenuItem>HSLA</DropdownMenuItem>
-                            <DropdownMenuItem>HSV / HSB</DropdownMenuItem>
-                            <DropdownMenuItem>CMYK</DropdownMenuItem>
-                            <DropdownMenuItem>LAB</DropdownMenuItem>
-                            <DropdownMenuItem>LCH</DropdownMenuItem>
-                            <DropdownMenuItem>OKLAB</DropdownMenuItem>
-                            <DropdownMenuItem>OKLCH</DropdownMenuItem>
+                          <DropdownMenuSub>
+                            <DropdownMenuSubTrigger>
+                              <Clipboard />
+                              Copy as
+                            </DropdownMenuSubTrigger>
 
-                            <DropdownMenuSeparator />
+                            <DropdownMenuSubContent>
+                              <DropdownMenuItem>HEX</DropdownMenuItem>
+                              <DropdownMenuItem>
+                                HEX (Without #)
+                              </DropdownMenuItem>
+                              <DropdownMenuItem>RGB</DropdownMenuItem>
+                              <DropdownMenuItem>RGBA</DropdownMenuItem>
+                              <DropdownMenuItem>HSL</DropdownMenuItem>
+                              <DropdownMenuItem>HSLA</DropdownMenuItem>
+                              <DropdownMenuItem>HSV / HSB</DropdownMenuItem>
+                              <DropdownMenuItem>CMYK</DropdownMenuItem>
+                              <DropdownMenuItem>LAB</DropdownMenuItem>
+                              <DropdownMenuItem>LCH</DropdownMenuItem>
+                              <DropdownMenuItem>OKLAB</DropdownMenuItem>
+                              <DropdownMenuItem>OKLCH</DropdownMenuItem>
 
-                            <DropdownMenuItem>CSS Variables</DropdownMenuItem>
-                            <DropdownMenuItem>SCSS Variables</DropdownMenuItem>
-                            <DropdownMenuItem>Tailwind CSS</DropdownMenuItem>
-                            <DropdownMenuItem>JSON</DropdownMenuItem>
-                            <DropdownMenuItem>
-                              JavaScript Array
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>Swift</DropdownMenuItem>
-                            <DropdownMenuItem>Android XML</DropdownMenuItem>
-                          </DropdownMenuSubContent>
-                        </DropdownMenuSub>
+                              <DropdownMenuSeparator />
 
-                        <DropdownMenuItem>
-                          <Eye />
-                          Quick view
-                        </DropdownMenuItem>
+                              <DropdownMenuItem>CSS Variables</DropdownMenuItem>
+                              <DropdownMenuItem>
+                                SCSS Variables
+                              </DropdownMenuItem>
+                              <DropdownMenuItem>Tailwind CSS</DropdownMenuItem>
+                              <DropdownMenuItem>JSON</DropdownMenuItem>
+                              <DropdownMenuItem>
+                                JavaScript Array
+                              </DropdownMenuItem>
+                              <DropdownMenuItem>Swift</DropdownMenuItem>
+                              <DropdownMenuItem>Android XML</DropdownMenuItem>
+                            </DropdownMenuSubContent>
+                          </DropdownMenuSub>
 
-                        <DropdownMenuItem>
-                          <View />
-                          View details
-                        </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleAddToProjects(palette.id)}
+                          >
+                            <FolderPlus />
+                            Add to projects
+                          </DropdownMenuItem>
 
-                        <DropdownMenuItem>
-                          <Maximize2 />
-                          Open on screen
-                        </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <Eye />
+                            Quick view
+                          </DropdownMenuItem>
 
-                        <DropdownMenuItem>
-                          <Columns3 />
-                          View mode
-                        </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <View />
+                            View details
+                          </DropdownMenuItem>
 
-                        <DropdownMenuItem>
-                          <Activity />
-                          Visualize palette
-                        </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <Maximize2 />
+                            Open on screen
+                          </DropdownMenuItem>
 
-                        <DropdownMenuItem>
-                          <TextSearch />
-                          Explore similar
-                        </DropdownMenuItem>
-                      </DropdownMenuGroup>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                          <DropdownMenuItem>
+                            <Columns3 />
+                            View mode
+                          </DropdownMenuItem>
+
+                          <DropdownMenuItem>
+                            <Activity />
+                            Visualize palette
+                          </DropdownMenuItem>
+
+                          <DropdownMenuItem>
+                            <TextSearch />
+                            Explore similar
+                          </DropdownMenuItem>
+                        </DropdownMenuGroup>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {palette.identity?.short_description}
+                </p>
+                <div className="w-full flex items-center justify-between mt-3">
+                  <span className="truncate text-xs text-muted-foreground">
+                    {formatRelativeTime(palette.created_at)}
+                  </span>
+                  <Badge variant={"secondary"}>{palette.creation_method}</Badge>
                 </div>
               </div>
-
-              <p className="mt-1 text-sm text-muted-foreground">
-                {palette.identity?.short_description}
-              </p>
-              <div className="w-full flex items-center justify-between mt-3">
-                <span className="truncate text-xs text-muted-foreground">
-                  {formatRelativeTime(palette.created_at)}
-                </span>
-                <Badge variant={"secondary"}>{palette.creation_method}</Badge>
-              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {totalPages > 1 && (
@@ -478,6 +640,23 @@ export default function PalettesExplorer() {
             {Math.min(page * pageSize, totalCount)} of {totalCount} palettes
           </p>
         </div>
+      )}
+
+      {selectedPaletteId !== null && (
+        <AddToProjectsDialog
+          paletteId={selectedPaletteId}
+          open={addToProjectsOpen}
+          onOpenChange={(open) => {
+            setAddToProjectsOpen(open);
+
+            if (!open) {
+              setSelectedPaletteId(null);
+            }
+          }}
+          onSaved={() => {
+            toast.success("Palette added to your projects.");
+          }}
+        />
       )}
     </div>
   );

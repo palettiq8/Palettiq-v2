@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { ArrowLeft, Bookmark, CheckCircle2, Loader2, Mail } from "lucide-react";
 
 import { sendMagicLink } from "@/app/actions/auth";
+import { useAuthDialogStore } from "@/store/useAuthDialogStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -16,14 +17,16 @@ import {
 } from "@/components/ui/dialog";
 
 export default function SavePalettesDialog() {
-  const [open, setOpen] = useState(false);
+  const isOpen = useAuthDialogStore((state) => state.isOpen);
+  const setIsOpen = useAuthDialogStore((state) => state.setIsOpen);
+
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [emailSent, setEmailSent] = useState(false);
 
   function handleOpenChange(value: boolean) {
-    setOpen(value);
+    setIsOpen(value);
 
     if (!value) {
       setEmail("");
@@ -54,10 +57,10 @@ export default function SavePalettesDialog() {
   }
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger
         render={
-          <Button variant={"outline"}>
+          <Button variant="outline">
             <Bookmark />
             Save my palettes
           </Button>

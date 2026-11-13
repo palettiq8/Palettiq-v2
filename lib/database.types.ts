@@ -87,6 +87,35 @@ export type Database = {
           },
         ]
       }
+      palette_favorites: {
+        Row: {
+          created_at: string
+          id: number
+          palette_id: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          palette_id: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          palette_id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "palette_favorites_palette_id_fkey"
+            columns: ["palette_id"]
+            isOneToOne: false
+            referencedRelation: "palettes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       palette_identities: {
         Row: {
           author: string | null
@@ -131,6 +160,45 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "palettes"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      palette_saves: {
+        Row: {
+          created_at: string
+          id: number
+          palette_id: number
+          project_id: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          palette_id: number
+          project_id?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          palette_id?: number
+          project_id?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "palette_saves_palette_id_fkey"
+            columns: ["palette_id"]
+            isOneToOne: false
+            referencedRelation: "palettes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "palette_saves_project_owner_fk"
+            columns: ["project_id", "user_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id", "user_id"]
           },
         ]
       }
@@ -238,6 +306,33 @@ export type Database = {
           updated_at?: string
           username?: string | null
           website?: string | null
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: number
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: number
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: number
+          name?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

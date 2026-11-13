@@ -4,6 +4,7 @@ import {
   PaletteCreationMethod,
   PaletteStatus,
 } from "./constants";
+import { Database } from "./database.types";
 
 export interface ColorFamily {
   name: string;
@@ -49,6 +50,8 @@ export interface PaletteActivity {
   activity_type: PaletteActivityType;
   created_at: string;
 }
+
+export type Project = Database["public"]["Tables"]["projects"]["Row"];
 
 export type StringFilterKey =
   | "industries"
