@@ -91,7 +91,7 @@ export default function AddToProjectsDialog({
       }
 
       onOpenChange(false);
-    } catch {
+    } catch (e) {
       // Mutation error is displayed in the dialog.
     }
   }
@@ -219,9 +219,9 @@ export default function AddToProjectsDialog({
 
               <Button
                 onClick={handleAdd}
-                disabled={
-                  selectedProjectIds.length === 0 || saveMutation.isPending
-                }
+                // disabled={
+                //   selectedProjectIds.length === 0 || saveMutation.isPending
+                // }
               >
                 {saveMutation.isPending ? "Adding..." : "Add"}
               </Button>
