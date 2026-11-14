@@ -77,39 +77,34 @@ export default function PaletteFiltersDrawer() {
   }, [search]);
 
   return (
-    <Drawer showSwipeHandle>
+    <Drawer>
       <DrawerTrigger
         render={
           <Button>
             <SlidersHorizontal />
             Filters
             {activeCount > 0 && (
-              <Badge
-                variant="secondary"
-                className="ml-1 size-5 justify-center rounded-full p-0 text-xs"
-              >
-                {activeCount}
-              </Badge>
+              <Badge variant="secondary">{activeCount}</Badge>
             )}
           </Button>
         }
       />
 
-      <DrawerContent className="mx-auto flex h-[85dvh] max-h-225 w-[calc(100%-1rem)] max-w-3xl flex-col rounded-t-2xl">
-        <DrawerHeader className="shrink-0 pb-3">
+      <DrawerContent className="mx-auto flex h-[85dvh] max-h-225 w-[calc(100%-1rem)] max-w-2xl flex-col">
+        <DrawerHeader className="px-4 pt-4">
           <div className="flex items-center justify-between">
-            <DrawerTitle className="text-lg">Filters</DrawerTitle>
+            <DrawerTitle>Filters</DrawerTitle>
             <DrawerClose
               render={
-                <Button variant="ghost" size="icon">
-                  <X className="size-4" />
+                <Button variant="outline" size="icon">
+                  <X />
                   <span className="sr-only">Close</span>
                 </Button>
               }
             />
           </div>
 
-          <div className="relative mt-3">
+          <div className="relative mt-2">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={search}
@@ -120,15 +115,15 @@ export default function PaletteFiltersDrawer() {
           </div>
         </DrawerHeader>
 
-        <ScrollArea className="min-h-0 flex-1">
-          <div className="space-y-4 px-4 pb-4">
+        <ScrollArea className="min-h-0 flex-1 p-4">
+          <div className="space-y-3">
             {filteredGroups.map((group) => (
-              <section key={group.label} className="space-y-2">
+              <section key={group.label} className="">
                 <h3 className="text-sm font-semibold text-muted-foreground">
                   {group.label}
                 </h3>
 
-                <Accordion className="w-full">
+                <Accordion className="w-full mt-2">
                   {group.categories.map((category) => {
                     const selected = filters[category.key];
                     const options = category.options;
@@ -204,7 +199,7 @@ export default function PaletteFiltersDrawer() {
           </div>
         </ScrollArea>
 
-        <DrawerFooter className="shrink-0 pt-4">
+        <DrawerFooter>
           <div className="flex flex-row gap-2">
             <Button
               size="lg"

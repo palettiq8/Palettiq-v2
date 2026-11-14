@@ -1,53 +1,45 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { Monitor, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
-import { Sun, Moon, Monitor } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
-const themes = [
-  { value: "light", label: "Light", icon: Sun },
-  { value: "dark", label: "Dark", icon: Moon },
-  { value: "system", label: "System", icon: Monitor },
-];
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
-  const activeTheme = themes.find((item) => item.value === theme) ?? themes[2];
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  const ActiveIcon = activeTheme.icon;
+  if (!mounted) {
+    return (
+      <Button variant="outline" size="icon" aria-label="Change appearance">
+        <Monitor />
+      </Button>
+    );
+  }
+
+  const ActiveIcon =
+    theme === "light" ? Sun : theme === "dark" ? Moon : Monitor;
+
+  const toggleTheme = () => {
+    const nextTheme =
+      theme === "light" ? "dark" : theme === "dark" ? "system" : "light";
+
+    setTheme(nextTheme);
+  };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <Button variant="outline" size="icon" aria-label="Change appearance">
-            <ActiveIcon />
-          </Button>
-        }
-      />
-
-      <DropdownMenuContent align="end" className="w-40">
-        <DropdownMenuRadioGroup
-          value={theme ?? "system"}
-          onValueChange={setTheme}
-        >
-          {themes.map(({ value, label, icon: Icon }) => (
-            <DropdownMenuRadioItem key={value} value={value}>
-              <Icon className="size-4" />
-              {label}
-            </DropdownMenuRadioItem>
-          ))}
-        </DropdownMenuRadioGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <Button
+      variant="outline"
+      size="icon"
+      aria-label="Change appearance"
+      onClick={toggleTheme}
+    >
+      <ActiveIcon />
+    </Button>
   );
 }

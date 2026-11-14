@@ -4,7 +4,7 @@ import {
   PaletteCreationMethod,
   PaletteStatus,
 } from "./constants";
-import { Database } from "./database.types";
+import { Database, Json } from "./database.types";
 
 export interface ColorFamily {
   name: string;
@@ -77,15 +77,27 @@ export type PaletteFilters = Record<StringFilterKey, string[]> & {
 
 export interface Palette {
   id: number;
-  status: PaletteStatus;
-  is_free: boolean;
+  status: PaletteStatus | null;
+  is_free: boolean | null;
   created_by: string | null;
-  creation_method: PaletteCreationMethod;
+  creation_method: PaletteCreationMethod | null;
   inspiration_sources: string | null;
-  filters: PaletteFilters;
+  filters: Json;
   created_at: string;
   updated_at: string;
   identity: PaletteIdentity;
   colors: PaletteColor[];
   stats: PaletteStats;
+}
+
+export interface DownloadablePalette {
+  id: number;
+  identity: {
+    name: string;
+    tagline: string | null;
+  } | null;
+  colors: {
+    position: number | null;
+    hex: string | null;
+  }[];
 }

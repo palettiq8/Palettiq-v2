@@ -354,6 +354,10 @@ export type Database = {
           total_count: number
         }[]
       }
+      increment_palette_downloads: {
+        Args: { p_palette_id: number }
+        Returns: undefined
+      }
     }
     Enums: {
       colorrole:

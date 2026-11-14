@@ -66,7 +66,7 @@ export default function CreateProjectDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md overflow-hidden">
         <DialogHeader>
           <DialogTitle>Create project</DialogTitle>
           <DialogDescription>
@@ -91,8 +91,8 @@ export default function CreateProjectDialog({
 
           <div className="space-y-2">
             <Label htmlFor="project-description">
-              Description
-              <span className="ml-1 text-muted-foreground font-normal">
+              Description{" "}
+              <span className="text-muted-foreground font-normal">
                 (Optional)
               </span>
             </Label>
@@ -104,7 +104,7 @@ export default function CreateProjectDialog({
               onChange={(e) => setDescription(e.target.value)}
               maxLength={300}
               rows={3}
-              className="resize-none"
+              className="resize-none wrap-anywhere"
             />
           </div>
 
@@ -113,27 +113,24 @@ export default function CreateProjectDialog({
               {error.message || "Something went wrong. Please try again."}
             </p>
           )}
-
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleOpenChange(false)}
-              disabled={createProjectMutation.isPending}
-            >
-              Cancel
-            </Button>
-
-            <Button
-              type="submit"
-              disabled={!name.trim() || createProjectMutation.isPending}
-            >
-              {createProjectMutation.isPending
-                ? "Creating..."
-                : "Create project"}
-            </Button>
-          </DialogFooter>
         </form>
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => handleOpenChange(false)}
+            disabled={createProjectMutation.isPending}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            type="submit"
+            disabled={!name.trim() || createProjectMutation.isPending}
+          >
+            {createProjectMutation.isPending ? "Creating..." : "Create project"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

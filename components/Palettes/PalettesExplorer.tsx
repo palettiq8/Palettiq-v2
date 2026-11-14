@@ -24,6 +24,8 @@ import {
   Star,
   TextSearch,
   View,
+  FileImage,
+  FileCode,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -71,6 +73,11 @@ import {
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { useAuthDialogStore } from "@/store/useAuthDialogStore";
+import {
+  downloadPaletteAsPng,
+  downloadPaletteAsSvg,
+} from "@/lib/utils/download-palette";
+import type { DownloadablePalette, Palette } from "@/lib/types";
 
 type PaginationItem = number | "ellipsis";
 
@@ -224,6 +231,44 @@ export default function PalettesExplorer() {
     setAddToProjectsOpen(true);
   };
 
+  const handleDownloadPalette = async (
+    palette: DownloadablePalette,
+    format: "png" | "svg",
+  ) => {
+    // First, generate and download the image.
+    try {
+      if (format === "png") {
+        await downloadPaletteAsPng(palette);
+      } else {
+        downloadPaletteAsSvg(palette);
+      }
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to download palette.",
+      );
+
+      return;
+    }
+
+    // Then increment the download counter.
+    const supabase = createClient();
+
+    const { error } = await supabase.rpc("increment_palette_downloads", {
+      p_palette_id: palette.id,
+    });
+
+    if (error) {
+      console.error("Failed to update palette download count:", error);
+
+      toast.success(`Palette downloaded as ${format.toUpperCase()}.`);
+      toast.error("Download count could not be updated.");
+
+      return;
+    }
+
+    toast.success(`Palette downloaded as ${format.toUpperCase()}.`);
+  };
+
   const previousQueryStateRef = useRef<{
     filters: PaletteFilters;
     sortBy: SortValue;
@@ -354,6 +399,24 @@ export default function PalettesExplorer() {
     });
   };
 
+  const handleCopyPalette = async (palette: DownloadablePalette) => {
+    const paletteData = {
+      name: palette.identity?.name ?? "Untitled Palette",
+      colors: palette.colors
+        .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+        .map((color) => color.hex),
+    };
+
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(paletteData, null, 2));
+
+      toast.success("Palette copied to clipboard.");
+    } catch (error) {
+      console.error("Failed to copy palette:", error);
+      toast.error("Failed to copy palette.");
+    }
+  };
+
   if (isPending || isFetching) {
     return (
       <div className="grid w-full grid-cols-1 gap-3 p-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -458,9 +521,43 @@ export default function PalettesExplorer() {
                         }
                       />
                     </Button>
-                    <Button variant={"outline"} size={"icon"}>
-                      <DownloadIcon />
-                    </Button>
+
+                    <DropdownMenu>
+                      <DropdownMenuTrigger
+                        render={
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            aria-label="Download palette"
+                          >
+                            <DownloadIcon />
+                          </Button>
+                        }
+                      />
+
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuGroup>
+                          <DropdownMenuItem
+                            onClick={() =>
+                              handleDownloadPalette(palette, "png")
+                            }
+                          >
+                            <FileImage />
+                            Download as PNG
+                          </DropdownMenuItem>
+
+                          <DropdownMenuItem
+                            onClick={() =>
+                              handleDownloadPalette(palette, "svg")
+                            }
+                          >
+                            <FileCode />
+                            Download as SVG
+                          </DropdownMenuItem>
+                        </DropdownMenuGroup>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+
                     <DropdownMenu>
                       <DropdownMenuTrigger
                         render={
@@ -476,7 +573,9 @@ export default function PalettesExplorer() {
 
                       <DropdownMenuContent>
                         <DropdownMenuGroup>
-                          <DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleCopyPalette(palette)}
+                          >
                             <Copy />
                             Copy
                           </DropdownMenuItem>
