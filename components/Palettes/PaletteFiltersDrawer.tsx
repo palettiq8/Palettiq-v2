@@ -62,12 +62,18 @@ export default function PaletteFiltersDrawer() {
     return PALETTE_FILTER_GROUPS.map((group) => ({
       ...group,
       categories: group.categories
-        .map((category) => ({
-          ...category,
-          options: category.options.filter((option) =>
-            option.toLowerCase().includes(query),
-          ),
-        }))
+        .map((category) => {
+          const categoryMatches = category.label.toLowerCase().includes(query);
+
+          return {
+            ...category,
+            options: categoryMatches
+              ? category.options
+              : category.options.filter((option) =>
+                  option.toLowerCase().includes(query),
+                ),
+          };
+        })
         .filter(
           (category) =>
             category.label.toLowerCase().includes(query) ||

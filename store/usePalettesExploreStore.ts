@@ -97,25 +97,27 @@ export type PaletteFilterKey =
 
 export type PaletteFilters = Record<PaletteFilterKey, string[]>;
 
-const INITIAL_FILTERS: PaletteFilters = {
-  color_families: [],
-  modes: [],
-  harmonies: [],
-  temperatures: [],
-  tones: [],
-  brightness_levels: [],
-  saturation_levels: [],
-  contrast_levels: [],
-  industries: [],
-  use_cases: [],
-  moods: [],
-  emotions: [],
-  psychologies: [],
-  styles: [],
-  themes: [],
-  seasons: [],
-  eras: [],
-};
+export function createEmptyPaletteFilters(): PaletteFilters {
+  return {
+    color_families: [],
+    modes: [],
+    harmonies: [],
+    temperatures: [],
+    tones: [],
+    brightness_levels: [],
+    saturation_levels: [],
+    contrast_levels: [],
+    industries: [],
+    use_cases: [],
+    moods: [],
+    emotions: [],
+    psychologies: [],
+    styles: [],
+    themes: [],
+    seasons: [],
+    eras: [],
+  };
+}
 
 const cloneFilters = (filters: PaletteFilters): PaletteFilters =>
   Object.fromEntries(
@@ -147,8 +149,8 @@ interface PalettesExploreState {
 
 export const usePalettesExploreStore = create<PalettesExploreState>(
   (set, get) => ({
-    filters: cloneFilters(INITIAL_FILTERS),
-    appliedFilters: cloneFilters(INITIAL_FILTERS),
+    filters: createEmptyPaletteFilters(),
+    appliedFilters: createEmptyPaletteFilters(),
 
     toggleFilter: (key, value) =>
       set((state) => {
@@ -171,7 +173,7 @@ export const usePalettesExploreStore = create<PalettesExploreState>(
 
     clearFilters: () =>
       set({
-        filters: cloneFilters(INITIAL_FILTERS),
+        filters: createEmptyPaletteFilters(),
       }),
 
     getActiveFilterCount: () =>

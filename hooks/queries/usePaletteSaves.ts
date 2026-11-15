@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
 import {
   savePaletteToProjects,
   fetchNormalSavedPaletteIds,
@@ -8,8 +9,18 @@ import {
 export const normalSavedPaletteQueryKey = ["normal-saved-palette-ids"];
 
 export function useSavePaletteToProjects() {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: savePaletteToProjects,
+
+    onSuccess: (result) => {
+      if (result.addedProjectIds.length > 0) {
+        return queryClient.invalidateQueries({
+          queryKey: ["palettes"],
+        });
+      }
+    },
   });
 }
 
@@ -56,6 +67,14 @@ export function useToggleNormalPaletteSave() {
           normalSavedPaletteQueryKey,
           context.previousIds,
         );
+      }
+    },
+
+    onSuccess: (_data, variables) => {
+      if (variables.isSaved) {
+        return queryClient.invalidateQueries({
+          queryKey: ["palettes"],
+        });
       }
     },
   });

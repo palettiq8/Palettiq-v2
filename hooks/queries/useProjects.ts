@@ -6,8 +6,6 @@ import {
   fetchProjects,
 } from "@/lib/queries/projects";
 
-import type { Project } from "@/lib/types";
-
 export function useProjects(search = "", enabled = true) {
   return useQuery({
     queryKey: ["projects", search],
@@ -21,12 +19,7 @@ export function useCreateProject() {
 
   return useMutation({
     mutationFn: createProject,
-    onSuccess: (newProject) => {
-      queryClient.setQueryData<Project[]>(
-        ["projects", ""],
-        (oldProjects = []) => [newProject, ...oldProjects],
-      );
-
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["projects"],
       });

@@ -17,10 +17,9 @@ import {
 import { HorizontalWheel } from "../HorizontalWheel";
 import {
   SORT_OPTIONS,
+  SortValue,
   usePalettesExploreStore,
 } from "@/store/usePalettesExploreStore";
-
-type SortValue = (typeof SORT_OPTIONS)[number]["value"];
 
 export default function PalettesExploreHeader() {
   const appliedFilters = usePalettesExploreStore(
@@ -33,7 +32,7 @@ export default function PalettesExploreHeader() {
   const sortBy = usePalettesExploreStore((state) => state.sortBy);
   const setSortBy = usePalettesExploreStore((state) => state.setSortBy);
 
-  const current = SORT_OPTIONS.find((o) => o.value === sortBy)!;
+  const current = SORT_OPTIONS.find((option) => option.value === sortBy);
 
   return (
     <div className="w-full flex items-center justify-between gap-4 px-6">
@@ -46,7 +45,7 @@ export default function PalettesExploreHeader() {
               key={family.name}
               variant={isActive ? "secondary" : "outline"}
               aria-pressed={isActive}
-              className="shrink-0 active:not-aria-[haspopup]:translate-y-0"
+              className="shrink-0"
               onClick={() =>
                 toggleAndApplyFilter("color_families", family.name)
               }
@@ -65,7 +64,7 @@ export default function PalettesExploreHeader() {
         <DropdownMenuTrigger
           render={
             <Button variant="outline" className="shrink-0">
-              {current.label}
+              {current?.label ?? "All"}
               <ChevronDownIcon />
             </Button>
           }

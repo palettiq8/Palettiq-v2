@@ -4,16 +4,20 @@ const WIDTH = 1200;
 const HEIGHT = 1800;
 
 function normalizeHex(hex: string) {
-  const value = hex.replace("#", "");
+  const value = hex.trim().replace(/^#/, "");
 
-  if (value.length === 3) {
+  if (/^[0-9a-f]{3}$/i.test(value)) {
     return `#${value
       .split("")
       .map((char) => char + char)
       .join("")}`;
   }
 
-  return `#${value}`;
+  if (/^[0-9a-f]{6}$/i.test(value)) {
+    return `#${value}`;
+  }
+
+  throw new Error(`Invalid color value: ${hex}`);
 }
 
 function getLuminance(hex: string) {

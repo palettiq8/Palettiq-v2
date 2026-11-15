@@ -74,5 +74,13 @@ export function useSetPaletteFavorite() {
         },
       );
     },
+
+    onSuccess: (_data, variables) => {
+      if (variables.isFavorite) {
+        return queryClient.invalidateQueries({
+          queryKey: ["palettes"],
+        });
+      }
+    },
   });
 }

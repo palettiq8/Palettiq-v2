@@ -68,7 +68,9 @@ export default function AddToProjectsDialog({
   }
 
   async function handleAdd() {
-    if (selectedProjectIds.length === 0) return;
+    if (selectedProjectIds.length === 0 || saveMutation.isPending) return;
+
+    saveMutation.reset();
 
     try {
       const result = await saveMutation.mutateAsync({
@@ -79,10 +81,9 @@ export default function AddToProjectsDialog({
       const { addedProjectIds, alreadyAddedProjects } = result;
 
       const addedCount = addedProjectIds.length;
-      const existingProjects = alreadyAddedProjects;
 
-      if (addedCount > 0 && existingProjects.length > 0) {
-        const projectNames = existingProjects
+      if (addedCount > 0 && alreadyAddedProjects.length > 0) {
+        const projectNames = alreadyAddedProjects
           .map((project) => `"${project.name}"`)
           .join(", ");
 
@@ -91,8 +92,8 @@ export default function AddToProjectsDialog({
         );
       } else if (addedCount > 0) {
         onSaved?.();
-      } else if (existingProjects.length > 0) {
-        const projectNames = existingProjects
+      } else if (alreadyAddedProjects.length > 0) {
+        const projectNames = alreadyAddedProjects
           .map((project) => `"${project.name}"`)
           .join(", ");
 

@@ -1,6 +1,7 @@
 import {
   PALETTE_FILTER_GROUPS,
   SORT_OPTIONS,
+  createEmptyPaletteFilters,
   type PaletteFilters,
   type PaletteFilterKey,
   type SortValue,
@@ -9,6 +10,17 @@ import {
 const FILTER_KEYS = PALETTE_FILTER_GROUPS.flatMap((group) =>
   group.categories.map((category) => category.key),
 ) as PaletteFilterKey[];
+
+const FILTER_OPTIONS: Record<PaletteFilterKey, readonly string[]> =
+  Object.fromEntries(
+    PALETTE_FILTER_GROUPS.reduce(
+      (categories, group) => [...categories, ...group.categories],
+      [] as Array<{
+        key: PaletteFilterKey;
+        options: readonly string[];
+      }>,
+    ).map((category) => [category.key, category.options]),
+  ) as Record<PaletteFilterKey, readonly string[]>;
 
 const DEFAULT_SORT: SortValue = "all";
 
@@ -19,28 +31,6 @@ export interface PaletteExploreUrlState {
   page: number;
 }
 
-function createEmptyFilters(): PaletteFilters {
-  return {
-    color_families: [],
-    modes: [],
-    harmonies: [],
-    temperatures: [],
-    tones: [],
-    brightness_levels: [],
-    saturation_levels: [],
-    contrast_levels: [],
-    industries: [],
-    use_cases: [],
-    moods: [],
-    emotions: [],
-    psychologies: [],
-    styles: [],
-    themes: [],
-    seasons: [],
-    eras: [],
-  };
-}
-
 function isValidSort(value: string): value is SortValue {
   return SORT_OPTIONS.some((option) => option.value === value);
 }
@@ -49,19 +39,15 @@ function getValidFilterValues(
   key: PaletteFilterKey,
   values: string[],
 ): string[] {
-  const category = PALETTE_FILTER_GROUPS.flatMap((group) => [
-    ...group.categories,
-  ]).find((item) => item.key === key);
+  const options = FILTER_OPTIONS[key];
 
-  if (!category) return [];
-
-  return category.options.filter((option: string) => values.includes(option));
+  return options.filter((option) => values.includes(option));
 }
 
 export function parsePaletteExploreUrl(
   params: URLSearchParams,
 ): PaletteExploreUrlState {
-  const filters = createEmptyFilters();
+  const filters = createEmptyPaletteFilters();
 
   for (const key of FILTER_KEYS) {
     const values = params.getAll(key);
@@ -93,7 +79,6 @@ export function serializePaletteExploreUrl(
 ): string {
   const params = new URLSearchParams();
 
-  // Filters are serialized in a consistent category and option order.
   for (const key of FILTER_KEYS) {
     const values = getValidFilterValues(key, state.filters[key]);
 

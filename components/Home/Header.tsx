@@ -31,6 +31,7 @@ import SavePalettesDialog from "@/components/Auth/SavePalettesDialog";
 import { ThemeToggle } from "../ThemeToggle";
 import { usePalettesExploreStore } from "@/store/usePalettesExploreStore";
 import PaletteFiltersDrawer from "@/components/Palettes/PaletteFiltersDrawer";
+import { toast } from "sonner";
 
 export default function Header() {
   const { user, isAuthenticated, isLoading, signOut } = useAuth();
@@ -46,7 +47,7 @@ export default function Header() {
         <Link href={"/"}>
           <Image
             src="/logo.svg"
-            alt="PalettIQ Logo"
+            alt="Palettiq Logo"
             width={32}
             height={32}
             priority
@@ -93,7 +94,9 @@ export default function Header() {
               <DropdownMenuItem
                 variant="destructive"
                 onClick={() => {
-                  void signOut().catch(console.error);
+                  void signOut().catch(() => {
+                    toast.error("Failed to sign out. Please try again.");
+                  });
                 }}
               >
                 <LogOutIcon />

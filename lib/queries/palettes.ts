@@ -63,7 +63,10 @@ export async function fetchPalettes({
 
   const palettes = paletteIds
     .map((id) => paletteMap.get(id))
-    .filter((palette) => palette !== undefined);
+    .filter(
+      (palette): palette is NonNullable<typeof palette> =>
+        palette !== undefined,
+    );
 
   return { palettes, totalCount };
 }

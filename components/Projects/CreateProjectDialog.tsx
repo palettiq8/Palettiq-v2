@@ -16,6 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+
 import { toast } from "sonner";
 
 interface CreateProjectDialogProps {
@@ -32,16 +33,21 @@ export default function CreateProjectDialog({
 
   const createProjectMutation = useCreateProject();
 
+  function resetForm() {
+    setName("");
+    setDescription("");
+    createProjectMutation.reset();
+  }
+
   function handleOpenChange(value: boolean) {
-    if (!value) {
-      setName("");
-      setDescription("");
-    }
+    if (!value && createProjectMutation.isPending) return;
+
+    if (!value) resetForm();
 
     onOpenChange(value);
   }
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     try {
@@ -52,15 +58,14 @@ export default function CreateProjectDialog({
 
       toast.success("Project created successfully.");
 
+      resetForm();
       onOpenChange(false);
-      setName("");
-      setDescription("");
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to create project.",
       );
     }
-  };
+  }
 
   const error = createProjectMutation.error;
 
@@ -113,24 +118,27 @@ export default function CreateProjectDialog({
               {error.message || "Something went wrong. Please try again."}
             </p>
           )}
-        </form>
-        <DialogFooter>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => handleOpenChange(false)}
-            disabled={createProjectMutation.isPending}
-          >
-            Cancel
-          </Button>
 
-          <Button
-            type="submit"
-            disabled={!name.trim() || createProjectMutation.isPending}
-          >
-            {createProjectMutation.isPending ? "Creating..." : "Create project"}
-          </Button>
-        </DialogFooter>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => handleOpenChange(false)}
+              disabled={createProjectMutation.isPending}
+            >
+              Cancel
+            </Button>
+
+            <Button
+              type="submit"
+              disabled={!name.trim() || createProjectMutation.isPending}
+            >
+              {createProjectMutation.isPending
+                ? "Creating..."
+                : "Create project"}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

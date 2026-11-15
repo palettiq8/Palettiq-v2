@@ -1,57 +1,30 @@
-import {
-  ColorRole,
-  PaletteActivityType,
-  PaletteCreationMethod,
-  PaletteStatus,
-} from "./constants";
-import { Database, Json } from "./database.types";
+import type { Database } from "./database.types";
+
+// =========================================
+// Database Types
+// =========================================
+
+type Tables = Database["public"]["Tables"];
+
+export type PaletteIdentity = Tables["palette_identities"]["Row"];
+export type PaletteColor = Tables["palette_colors"]["Row"];
+export type PaletteStats = Tables["palette_stats"]["Row"];
+export type PaletteActivity = Tables["palette_activities"]["Row"];
+export type Project = Tables["projects"]["Row"];
+
+export type PaletteCreationMethod =
+  Database["public"]["Enums"]["palettecreatedby"];
+
+export type PaletteStatus = Database["public"]["Enums"]["palettestatus"];
+
+// =========================================
+// Custom Types
+// =========================================
 
 export interface ColorFamily {
   name: string;
   hex: string;
 }
-
-export interface PaletteIdentity {
-  id: number;
-  palette_id: number;
-  name: string;
-  slug: string;
-  short_description: string;
-  long_description: string;
-  tagline: string;
-  story: string;
-  author: string | null;
-  best_for: string;
-}
-
-export interface PaletteColor {
-  id: number;
-  palette_id: number;
-  position: number;
-  hex: string;
-  name: string;
-  role: ColorRole;
-  color_families: ColorFamily[];
-  created_at: string;
-  updated_at: string;
-}
-
-export interface PaletteStats {
-  id: number;
-  palette_id: number;
-  saves: number;
-  favorites: number;
-  downloads: number;
-}
-
-export interface PaletteActivity {
-  id: number;
-  palette_id: number;
-  activity_type: PaletteActivityType;
-  created_at: string;
-}
-
-export type Project = Database["public"]["Tables"]["projects"]["Row"];
 
 export type StringFilterKey =
   | "industries"
@@ -75,29 +48,32 @@ export type PaletteFilters = Record<StringFilterKey, string[]> & {
   color_families: ColorFamily[];
 };
 
-export interface Palette {
-  id: number;
-  status: PaletteStatus | null;
-  is_free: boolean | null;
-  created_by: string | null;
-  creation_method: PaletteCreationMethod | null;
-  inspiration_sources: string | null;
-  filters: Json;
-  created_at: string;
-  updated_at: string;
-  identity: PaletteIdentity;
-  colors: PaletteColor[];
-  stats: PaletteStats;
-}
+// =========================================
+// Application Types
+// =========================================
 
-export interface DownloadablePalette {
-  id: number;
-  identity: {
-    name: string;
-    tagline: string | null;
-  } | null;
-  colors: {
-    position: number | null;
-    hex: string | null;
-  }[];
-}
+export type Palette = Pick<
+  Tables["palettes"]["Row"],
+  | "id"
+  | "status"
+  | "is_free"
+  | "created_by"
+  | "creation_method"
+  | "inspiration_sources"
+  | "filters"
+  | "created_at"
+  | "updated_at"
+> & {
+  identity: PaletteIdentity | null;
+  colors: PaletteColor[];
+  stats: PaletteStats | null;
+};
+
+// =========================================
+// Download Types
+// =========================================
+
+export type DownloadablePalette = Pick<Palette, "id"> & {
+  identity: Pick<PaletteIdentity, "name" | "tagline"> | null;
+  colors: Pick<PaletteColor, "position" | "hex">[];
+};
