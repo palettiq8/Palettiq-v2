@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import type { Palette } from "@/lib/types";
 
@@ -23,26 +23,38 @@ export function PaletteActionsProvider({
   const [activePaletteId, setActivePaletteId] = useState<number | null>(null);
   const [activeAction, setActiveAction] = useState<PaletteAction | null>(null);
 
-  const openPaletteAction = (paletteId: number, action: PaletteAction) => {
-    setActivePaletteId(paletteId);
-    setActiveAction(action);
-  };
+  const openPaletteAction = useCallback(
+    (paletteId: number, action: PaletteAction) => {
+      setActivePaletteId(paletteId);
+      setActiveAction(action);
+    },
+    [],
+  );
 
-  const closePaletteAction = () => {
+  const closePaletteAction = useCallback(() => {
     setActivePaletteId(null);
     setActiveAction(null);
-  };
+  }, []);
+
+  const contextValue = useMemo(
+    () => ({
+      palettes,
+      activePaletteId,
+      activeAction,
+      openPaletteAction,
+      closePaletteAction,
+    }),
+    [
+      palettes,
+      activePaletteId,
+      activeAction,
+      openPaletteAction,
+      closePaletteAction,
+    ],
+  );
 
   return (
-    <PaletteActionsContext.Provider
-      value={{
-        palettes,
-        activePaletteId,
-        activeAction,
-        openPaletteAction,
-        closePaletteAction,
-      }}
-    >
+    <PaletteActionsContext.Provider value={contextValue}>
       {children}
 
       {activeAction === "quick-view" && activePaletteId !== null && (

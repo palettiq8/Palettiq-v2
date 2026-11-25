@@ -10,7 +10,6 @@ import {
   type ColorBlindnessType,
   type PaletteColorInput,
 } from "@/lib/utils/color-blindness";
-import { Separator } from "@/components/ui/separator";
 
 interface PaletteBlindnessOverviewProps {
   colors: PaletteColorInput[];

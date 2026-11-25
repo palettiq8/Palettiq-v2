@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Plus, Search, FolderOpen, X } from "lucide-react";
+import { toast } from "sonner";
 
 import { useProjects } from "@/hooks/queries/useProjects";
 import { useSavePaletteToProjects } from "@/hooks/queries/usePaletteSaves";
@@ -27,7 +28,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { toast } from "sonner";
 import { Spinner } from "../ui/spinner";
 import { ScrollArea } from "../ui/scroll-area";
 
@@ -73,14 +73,17 @@ export default function AddToProjectsDialog({
     saveMutation.reset();
 
     try {
-      const result = await saveMutation.mutateAsync({
-        paletteId,
-        projectIds: selectedProjectIds,
-      });
-
-      const { addedProjectIds, alreadyAddedProjects } = result;
+      const { addedProjectIds, alreadyAddedProjects } =
+        await saveMutation.mutateAsync({
+          paletteId,
+          projectIds: selectedProjectIds,
+        });
 
       const addedCount = addedProjectIds.length;
+
+      if (addedCount > 0) {
+        onSaved?.();
+      }
 
       if (addedCount > 0 && alreadyAddedProjects.length > 0) {
         const projectNames = alreadyAddedProjects
@@ -91,7 +94,7 @@ export default function AddToProjectsDialog({
           `Added to ${addedCount} project(s). Already exists in: ${projectNames}.`,
         );
       } else if (addedCount > 0) {
-        onSaved?.();
+        toast.success(`Added to ${addedCount} project(s).`);
       } else if (alreadyAddedProjects.length > 0) {
         const projectNames = alreadyAddedProjects
           .map((project) => `"${project.name}"`)
@@ -101,7 +104,7 @@ export default function AddToProjectsDialog({
       }
 
       onOpenChange(false);
-    } catch (e) {
+    } catch {
       // Mutation error is displayed in the dialog.
     }
   }
@@ -224,7 +227,7 @@ export default function AddToProjectsDialog({
             </ScrollArea>
 
             {saveMutation.error && (
-              <p className="text-sm text-destructive">
+              <p className="text-sm text-destructive" role="alert">
                 {saveMutation.error.message}
               </p>
             )}

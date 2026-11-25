@@ -5,18 +5,20 @@ import { Copy } from "lucide-react";
 import { converter, formatHex } from "culori";
 
 import { CopyColorButton } from "./CopyColorButton";
+import { PaletteBlindnessOverview } from "./PaletteBlindnessOverview";
+import { PaletteContrastOverview } from "./PaletteContrastOverview";
+
 import { generateColorVariations } from "@/lib/utils/color-variations";
 import { calculatePaletteUsage } from "@/lib/utils/palette-usage";
 import type { PaletteDetails } from "@/lib/queries/palette-details";
 import { Separator } from "@/components/ui/separator";
 import { getContrastTextColor } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import {
+  colorBlindnessTypes,
   simulateColorBlindness,
-  type ColorBlindnessType,
 } from "@/lib/utils/color-blindness";
-import { PaletteBlindnessOverview } from "./PaletteBlindnessOverview";
-import { PaletteContrastOverview } from "./PaletteContrastOverview";
 
 interface PaletteColorBreakdownProps {
   colors: PaletteDetails["colors"];
@@ -86,33 +88,6 @@ function generateColorHarmonies(hex: string): ColorHarmony[] {
   return [...hueHarmonies, monochromatic];
 }
 
-const colorBlindnessTypes: {
-  key: ColorBlindnessType;
-  label: string;
-  description: string;
-}[] = [
-  {
-    key: "protanopia",
-    label: "Protanopia",
-    description: "Red color vision deficiency",
-  },
-  {
-    key: "deuteranopia",
-    label: "Deuteranopia",
-    description: "Green color vision deficiency",
-  },
-  {
-    key: "tritanopia",
-    label: "Tritanopia",
-    description: "Blue color vision deficiency",
-  },
-  {
-    key: "achromatopsia",
-    label: "Achromatopsia",
-    description: "Complete color blindness",
-  },
-];
-
 export function PaletteColorBreakdown({ colors }: PaletteColorBreakdownProps) {
   const validColors = colors.filter(
     (color): color is typeof color & { hex: string } => Boolean(color.hex),
@@ -146,7 +121,6 @@ export function PaletteColorBreakdown({ colors }: PaletteColorBreakdownProps) {
       <Separator />
 
       <Tabs defaultValue={String(validColors[0].id)} className="w-full">
-        {/* Color Tabs */}
         <TabsList className="w-full">
           {validColors.map((color, index) => (
             <TabsTrigger key={color.id} value={String(color.id)}>
@@ -173,11 +147,8 @@ export function PaletteColorBreakdown({ colors }: PaletteColorBreakdownProps) {
               value={String(color.id)}
               className="mt-5 focus-visible:outline-none"
             >
-              {/* Main Color & Variations */}
               <div className="grid items-stretch gap-4 lg:grid-cols-[0.6fr_1.4fr]">
-                {/* Main Color Card */}
                 <article className="flex h-full min-w-0 flex-col overflow-hidden rounded-xl border border-border/60 bg-card">
-                  {/* Main Color Preview */}
                   <div
                     className="relative min-h-52 flex-1"
                     style={{ backgroundColor: color.hex }}
@@ -190,7 +161,6 @@ export function PaletteColorBreakdown({ colors }: PaletteColorBreakdownProps) {
                     </span>
                   </div>
 
-                  {/* Color Information */}
                   <div className="space-y-3 p-4">
                     <div className="flex items-center justify-between gap-3">
                       <div className="min-w-0 space-y-1">
@@ -223,7 +193,6 @@ export function PaletteColorBreakdown({ colors }: PaletteColorBreakdownProps) {
                   </div>
                 </article>
 
-                {/* Color Variations */}
                 <div className="flex min-w-0 flex-col justify-between gap-5">
                   {variationGroups.map((group) => (
                     <div key={group.key} className="min-w-0 space-y-3">
@@ -237,7 +206,6 @@ export function PaletteColorBreakdown({ colors }: PaletteColorBreakdownProps) {
                         </span>
                       </div>
 
-                      {/* Horizontal Color Strip */}
                       <div className="grid h-16 grid-cols-15 overflow-hidden rounded-md border border-black/10">
                         {variations[group.key].map((hex, variationIndex) => (
                           <button
@@ -263,7 +231,6 @@ export function PaletteColorBreakdown({ colors }: PaletteColorBreakdownProps) {
                 </div>
               </div>
 
-              {/* Color Harmonies */}
               {harmonies.length > 0 && (
                 <div className="mt-6 space-y-4">
                   <div className="flex flex-col gap-1">
@@ -320,7 +287,6 @@ export function PaletteColorBreakdown({ colors }: PaletteColorBreakdownProps) {
                 </div>
               )}
 
-              {/* Color Blindness Simulation */}
               <div className="mt-6 space-y-4">
                 <div className="flex flex-col gap-1">
                   <h3 className="text-base font-semibold tracking-tight">
@@ -401,6 +367,7 @@ export function PaletteColorBreakdown({ colors }: PaletteColorBreakdownProps) {
           );
         })}
       </Tabs>
+
       <PaletteBlindnessOverview colors={validColors} onCopyColor={copyColor} />
       <PaletteContrastOverview colors={validColors} />
     </section>

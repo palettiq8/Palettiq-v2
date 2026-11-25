@@ -1,14 +1,18 @@
 import { Suspense } from "react";
 import { notFound, permanentRedirect } from "next/navigation";
 import { connection } from "next/server";
+
+import {
+  fetchPaletteById,
+  fetchSimilarPalettes,
+} from "@/lib/queries/palette-details";
+
 import { PaletteHero } from "@/components/Palettes/Details/PaletteHero";
 import { PaletteColorBreakdown } from "@/components/Palettes/Details/PaletteColorBreakdown";
-import { fetchPaletteById } from "@/lib/queries/palette-details";
 import { PaletteAbout } from "@/components/Palettes/Details/PaletteAbout";
 import { PaletteCharacteristics } from "@/components/Palettes/Details/PaletteCharacteristics";
 import { PaletteDesignContext } from "@/components/Palettes/Details/PaletteDesignContext";
 import { PaletteDetailsSkeleton } from "@/components/Palettes/Details/PaletteDetailsSkeleton";
-import { fetchSimilarPalettes } from "@/lib/queries/palette-details";
 import { SimilarPalettes } from "@/components/Palettes/Details/SimilarPalettes";
 
 interface PaletteDetailsPageProps {
@@ -35,7 +39,6 @@ async function PaletteDetailsContent({ params }: PaletteDetailsPageProps) {
   const separatorIndex = paletteParam.indexOf("-");
 
   if (separatorIndex === -1) {
-    console.log("ERROR: Invalid URL format");
     notFound();
   }
 
@@ -43,14 +46,12 @@ async function PaletteDetailsContent({ params }: PaletteDetailsPageProps) {
   const slug = paletteParam.slice(separatorIndex + 1);
 
   if (!Number.isSafeInteger(id) || id <= 0 || !slug) {
-    console.log("ERROR: Invalid ID or slug");
     notFound();
   }
 
   const paletteData = await fetchPaletteById(id);
 
   if (!paletteData?.identity?.slug) {
-    console.log("ERROR: Palette or identity not found");
     notFound();
   }
 

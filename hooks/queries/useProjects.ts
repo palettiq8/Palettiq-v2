@@ -7,9 +7,11 @@ import {
 } from "@/lib/queries/projects";
 
 export function useProjects(search = "", enabled = true) {
+  const normalizedSearch = search.trim();
+
   return useQuery({
-    queryKey: ["projects", search],
-    queryFn: () => fetchProjects({ search }),
+    queryKey: ["projects", normalizedSearch],
+    queryFn: () => fetchProjects({ search: normalizedSearch }),
     enabled,
   });
 }
@@ -19,8 +21,9 @@ export function useCreateProject() {
 
   return useMutation({
     mutationFn: createProject,
+
     onSuccess: () => {
-      queryClient.invalidateQueries({
+      return queryClient.invalidateQueries({
         queryKey: ["projects"],
       });
     },
@@ -32,8 +35,9 @@ export function useDeleteProject() {
 
   return useMutation({
     mutationFn: deleteProject,
+
     onSuccess: () => {
-      queryClient.invalidateQueries({
+      return queryClient.invalidateQueries({
         queryKey: ["projects"],
       });
     },

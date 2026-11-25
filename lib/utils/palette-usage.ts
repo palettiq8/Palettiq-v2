@@ -1,4 +1,4 @@
-import { ColorRole } from "../constants";
+import { ColorRole } from "../types";
 
 interface PaletteColorInput {
   id: number;

@@ -20,8 +20,6 @@ export async function fetchPalettes({
 }: FetchPalettesParams) {
   const supabase = createClient();
 
-  const rpcStart = performance.now();
-
   const { data: matchedPalettes, error: filterError } = await supabase.rpc(
     "get_filtered_palettes",
     {
@@ -33,11 +31,11 @@ export async function fetchPalettes({
     },
   );
 
-  console.log(
-    `[Palettiq] RPC: ${(performance.now() - rpcStart).toFixed(2)}ms`,
-  );
-
-  if (filterError) throw new Error(filterError.message);
+  if (filterError) {
+    throw new Error(
+      `Failed to fetch filtered palettes: ${filterError.message}`,
+    );
+  }
 
   const results = matchedPalettes ?? [];
   const totalCount = results[0]?.total_count ?? 0;
@@ -46,8 +44,6 @@ export async function fetchPalettes({
   if (paletteIds.length === 0) {
     return { palettes: [], totalCount };
   }
-
-  const fetchStart = performance.now();
 
   const { data, error } = await supabase
     .from("palettes")
@@ -62,22 +58,25 @@ export async function fetchPalettes({
     .in("id", paletteIds)
     .eq("status", "published");
 
-  console.log(
-    `[Palettiq] Full palette fetch: ${(performance.now() - fetchStart).toFixed(2)}ms`,
-  );
-
-  if (error) throw new Error(error.message);
+  if (error) {
+    throw new Error(`Failed to fetch palette details: ${error.message}`);
+  }
 
   const paletteMap = new Map(
-    (data ?? []).map((palette) => [palette.id, palette]),
+    (data ?? []).map((palette) => [
+      palette.id,
+      {
+        ...palette,
+        colors: [...(palette.colors ?? [])].sort(
+          (a, b) => (a.position ?? 0) - (b.position ?? 0),
+        ),
+      },
+    ]),
   );
 
   const palettes = paletteIds
     .map((id) => paletteMap.get(id))
-    .filter(
-      (palette): palette is NonNullable<typeof palette> =>
-        palette !== undefined,
-    );
+    .filter((palette) => palette !== undefined);
 
   return { palettes, totalCount };
 }

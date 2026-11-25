@@ -16,7 +16,7 @@ const siteUrl = "https://palettiq.net";
 
 const siteTitle = "Explore Color Palettes | Palettiq";
 const siteDescription =
-  "Discover and explore beautiful color palettes by colors, moods, styles, industries and more. Find color inspiration for your next creative project.";
+  "Discover and explore beautiful color palettes by color, mood, style, and industry. Find color inspiration for your next creative project.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

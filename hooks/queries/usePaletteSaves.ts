@@ -67,6 +67,11 @@ export function useToggleNormalPaletteSave() {
           normalSavedPaletteQueryKey,
           context.previousIds,
         );
+      } else {
+        queryClient.removeQueries({
+          queryKey: normalSavedPaletteQueryKey,
+          exact: true,
+        });
       }
     },
 

@@ -30,8 +30,6 @@ export function useSetPaletteFavorite() {
         favoritePaletteQueryKey,
       );
 
-      const previousIsFavorite = previousIds?.includes(paletteId) ?? false;
-
       queryClient.setQueryData<number[]>(
         favoritePaletteQueryKey,
         (oldIds = []) => {
@@ -43,36 +41,18 @@ export function useSetPaletteFavorite() {
         },
       );
 
-      return {
-        paletteId,
-        previousIsFavorite,
-        hadPreviousCache: previousIds !== undefined,
-      };
+      return { previousIds };
     },
 
     onError: (_error, _variables, context) => {
-      if (!context) return;
-
-      if (!context.hadPreviousCache) {
-        queryClient.setQueryData<number[]>(
-          favoritePaletteQueryKey,
-          (oldIds = []) => oldIds.filter((id) => id !== context.paletteId),
-        );
-        return;
+      if (context?.previousIds !== undefined) {
+        queryClient.setQueryData(favoritePaletteQueryKey, context.previousIds);
+      } else {
+        queryClient.removeQueries({
+          queryKey: favoritePaletteQueryKey,
+          exact: true,
+        });
       }
-
-      queryClient.setQueryData<number[]>(
-        favoritePaletteQueryKey,
-        (oldIds = []) => {
-          if (context.previousIsFavorite) {
-            return oldIds.includes(context.paletteId)
-              ? oldIds
-              : [...oldIds, context.paletteId];
-          }
-
-          return oldIds.filter((id) => id !== context.paletteId);
-        },
-      );
     },
 
     onSuccess: (_data, variables) => {

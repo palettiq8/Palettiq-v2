@@ -1,17 +1,10 @@
 import type { ReactNode } from "react";
 import { Suspense } from "react";
 
-import { AccountSidebar } from "@/components/Account/AccountSidebar";
 import { AccountContent } from "@/components/Account/AccountContent";
+import { AccountSidebar } from "@/components/Account/AccountSidebar";
 
 interface AccountLayoutProps {
-  children: ReactNode;
-  params: Promise<{
-    userId: string;
-  }>;
-}
-
-interface AccountLayoutContentProps {
   children: ReactNode;
   params: Promise<{
     userId: string;
@@ -26,7 +19,7 @@ export default function AccountLayout({
     <Suspense
       fallback={
         <div className="flex h-[calc(100dvh-4rem)] min-h-0 w-full overflow-hidden">
-          <aside className="h-full w-64 shrink-0 border-r bg-background" />
+          <aside className="hidden h-full w-64 shrink-0 border-r bg-background md:block" />
           <main className="h-full min-w-0 flex-1 bg-background" />
         </div>
       }
@@ -36,29 +29,20 @@ export default function AccountLayout({
   );
 }
 
-async function AccountLayoutContent({
-  children,
-  params,
-}: AccountLayoutContentProps) {
+async function AccountLayoutContent({ children, params }: AccountLayoutProps) {
   const { userId } = await params;
 
   return (
     <div className="flex h-[calc(100dvh-4rem)] min-h-0 w-full overflow-hidden">
       <Suspense
         fallback={
-          <aside className="h-full w-64 shrink-0 border-r bg-background" />
+          <aside className="hidden h-full w-64 shrink-0 border-r bg-background md:block" />
         }
       >
         <AccountSidebar userId={userId} />
       </Suspense>
 
-      <Suspense
-        fallback={
-          <main className="h-full min-h-0 min-w-0 flex-1 bg-background" />
-        }
-      >
-        <AccountContent>{children}</AccountContent>
-      </Suspense>
+      <AccountContent>{children}</AccountContent>
     </div>
   );
 }

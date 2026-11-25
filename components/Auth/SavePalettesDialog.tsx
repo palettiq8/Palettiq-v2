@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, type FormEvent } from "react";
@@ -26,6 +27,9 @@ export default function SavePalettesDialog() {
   const [emailSent, setEmailSent] = useState(false);
 
   function handleOpenChange(value: boolean) {
+    // Prevent closing while the magic-link request is in progress.
+    if (!value && isSubmitting) return;
+
     setIsOpen(value);
 
     if (!value) {
@@ -37,6 +41,9 @@ export default function SavePalettesDialog() {
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    if (isSubmitting) return;
+
     setError("");
     setIsSubmitting(true);
 

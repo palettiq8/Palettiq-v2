@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
+import { toast } from "sonner";
+
 import { useCreateProject } from "@/hooks/queries/useProjects";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-
 import {
   Dialog,
   DialogContent,
@@ -16,8 +17,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-
-import { toast } from "sonner";
 
 interface CreateProjectDialogProps {
   open: boolean;
@@ -47,13 +46,18 @@ export default function CreateProjectDialog({
     onOpenChange(value);
   }
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    const trimmedName = name.trim();
+    const trimmedDescription = description.trim();
+
+    if (!trimmedName || createProjectMutation.isPending) return;
 
     try {
       await createProjectMutation.mutateAsync({
-        name,
-        description,
+        name: trimmedName,
+        description: trimmedDescription,
       });
 
       toast.success("Project created successfully.");
@@ -67,11 +71,9 @@ export default function CreateProjectDialog({
     }
   }
 
-  const error = createProjectMutation.error;
-
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md overflow-hidden">
+      <DialogContent className="overflow-hidden sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Create project</DialogTitle>
           <DialogDescription>
@@ -97,7 +99,7 @@ export default function CreateProjectDialog({
           <div className="space-y-2">
             <Label htmlFor="project-description">
               Description{" "}
-              <span className="text-muted-foreground font-normal">
+              <span className="font-normal text-muted-foreground">
                 (Optional)
               </span>
             </Label>
@@ -112,12 +114,6 @@ export default function CreateProjectDialog({
               className="resize-none wrap-anywhere"
             />
           </div>
-
-          {error && (
-            <p className="text-sm text-destructive">
-              {error.message || "Something went wrong. Please try again."}
-            </p>
-          )}
 
           <DialogFooter>
             <Button

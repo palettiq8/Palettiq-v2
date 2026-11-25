@@ -24,7 +24,7 @@ export async function fetchFavoritePaletteIds() {
 
   if (error) throw new Error(error.message);
 
-  return data.map((favorite) => favorite.palette_id);
+  return (data ?? []).map((favorite) => favorite.palette_id);
 }
 
 export async function setPaletteFavorite({

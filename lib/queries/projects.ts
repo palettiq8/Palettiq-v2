@@ -9,6 +9,10 @@ interface CreateProjectParams {
   description?: string;
 }
 
+function escapeLikePattern(value: string) {
+  return value.replace(/[\\%_]/g, "\\$&");
+}
+
 export async function fetchProjects({ search = "" }: FetchProjectsParams = {}) {
   const supabase = createClient();
 
@@ -18,18 +22,28 @@ export async function fetchProjects({ search = "" }: FetchProjectsParams = {}) {
   } = await supabase.auth.getUser();
 
   if (authError) throw new Error(authError.message);
-  if (!user) throw new Error("You must be logged in to view projects.");
 
-  const { data, error } = await supabase
+  if (!user) {
+    throw new Error("You must be logged in to view projects.");
+  }
+
+  const normalizedSearch = search.trim();
+
+  let query = supabase
     .from("projects")
     .select("*")
     .eq("user_id", user.id)
-    .ilike("name", `%${search.trim()}%`)
     .order("updated_at", { ascending: false });
+
+  if (normalizedSearch) {
+    query = query.ilike("name", `%${escapeLikePattern(normalizedSearch)}%`);
+  }
+
+  const { data, error } = await query;
 
   if (error) throw new Error(error.message);
 
-  return data;
+  return data ?? [];
 }
 
 export async function createProject({
@@ -44,7 +58,10 @@ export async function createProject({
   } = await supabase.auth.getUser();
 
   if (authError) throw new Error(authError.message);
-  if (!user) throw new Error("You must be logged in to create a project.");
+
+  if (!user) {
+    throw new Error("You must be logged in to create a project.");
+  }
 
   const trimmedName = name.trim();
 
@@ -76,7 +93,10 @@ export async function deleteProject(projectId: number) {
   } = await supabase.auth.getUser();
 
   if (authError) throw new Error(authError.message);
-  if (!user) throw new Error("You must be logged in to delete a project.");
+
+  if (!user) {
+    throw new Error("You must be logged in to delete a project.");
+  }
 
   const { error } = await supabase
     .from("projects")

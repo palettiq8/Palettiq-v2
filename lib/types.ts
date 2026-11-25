@@ -1,3 +1,4 @@
+
 import type { Database } from "./database.types";
 
 // =========================================
@@ -16,6 +17,9 @@ export type PaletteCreationMethod =
   Database["public"]["Enums"]["palettecreatedby"];
 
 export type PaletteStatus = Database["public"]["Enums"]["palettestatus"];
+export type ColorRole = Database["public"]["Enums"]["colorrole"];
+export type PaletteActivityType =
+  Database["public"]["Enums"]["paletteactivitytype"];
 
 // =========================================
 // Custom Types

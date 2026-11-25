@@ -15,6 +15,11 @@ interface SavePaletteToProjectsResult {
   alreadyAddedProjects: ExistingProject[];
 }
 
+interface SetNormalPaletteSaveParams {
+  paletteId: number;
+  isSaved: boolean;
+}
+
 export async function savePaletteToProjects({
   paletteId,
   projectIds,
@@ -27,7 +32,10 @@ export async function savePaletteToProjects({
   } = await supabase.auth.getUser();
 
   if (authError) throw new Error(authError.message);
-  if (!user) throw new Error("You must be logged in to save palettes.");
+
+  if (!user) {
+    throw new Error("You must be logged in to save palettes.");
+  }
 
   const uniqueProjectIds = [...new Set(projectIds)];
 
@@ -35,7 +43,6 @@ export async function savePaletteToProjects({
     throw new Error("Please select at least one project.");
   }
 
-  // Find projects where this palette already exists.
   const { data: existingSaves, error: checkError } = await supabase
     .from("palette_saves")
     .select("project_id")
@@ -51,7 +58,6 @@ export async function savePaletteToProjects({
       .filter((id): id is number => id !== null),
   );
 
-  // Fetch names of existing projects.
   let alreadyAddedProjects: ExistingProject[] = [];
 
   if (existingProjectIds.size > 0) {
@@ -66,7 +72,6 @@ export async function savePaletteToProjects({
     alreadyAddedProjects = projects ?? [];
   }
 
-  // Prepare only new project saves.
   const newProjectIds = uniqueProjectIds.filter(
     (id) => !existingProjectIds.has(id),
   );
@@ -100,6 +105,7 @@ export async function fetchNormalSavedPaletteIds() {
   } = await supabase.auth.getUser();
 
   if (authError) throw new Error(authError.message);
+
   if (!user) return [];
 
   const { data, error } = await supabase
@@ -110,12 +116,7 @@ export async function fetchNormalSavedPaletteIds() {
 
   if (error) throw new Error(error.message);
 
-  return data.map((item) => item.palette_id);
-}
-
-interface SetNormalPaletteSaveParams {
-  paletteId: number;
-  isSaved: boolean;
+  return (data ?? []).map((item) => item.palette_id);
 }
 
 export async function setNormalPaletteSave({
@@ -130,7 +131,10 @@ export async function setNormalPaletteSave({
   } = await supabase.auth.getUser();
 
   if (authError) throw new Error(authError.message);
-  if (!user) throw new Error("You must be logged in to save palettes.");
+
+  if (!user) {
+    throw new Error("You must be logged in to save palettes.");
+  }
 
   if (isSaved) {
     const { error } = await supabase.from("palette_saves").insert({

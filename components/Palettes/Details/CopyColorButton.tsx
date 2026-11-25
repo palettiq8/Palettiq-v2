@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check, Copy } from "lucide-react";
 import { toast } from "sonner";
 
@@ -12,16 +12,30 @@ interface CopyColorButtonProps {
 
 export function CopyColorButton({ hex }: CopyColorButtonProps) {
   const [copied, setCopied] = useState(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   async function handleCopy() {
     try {
       await navigator.clipboard.writeText(hex);
 
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+
       setCopied(true);
       toast.success(`${hex} copied to clipboard`);
 
-      window.setTimeout(() => {
+      timeoutRef.current = setTimeout(() => {
         setCopied(false);
+        timeoutRef.current = null;
       }, 1500);
     } catch {
       toast.error("Failed to copy color");

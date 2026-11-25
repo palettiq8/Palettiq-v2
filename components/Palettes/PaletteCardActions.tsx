@@ -1,5 +1,5 @@
 import {
-  Activity,
+  ActivityIcon,
   Bookmark,
   Clipboard,
   Columns3,
@@ -15,6 +15,9 @@ import {
   TextSearch,
   View,
 } from "lucide-react";
+import Link from "next/link";
+import { toast } from "sonner";
+
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -29,9 +32,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { Palette } from "@/lib/types";
 import { copyPalette, type PaletteCopyFormat } from "@/lib/utils/copy-palette";
-import { toast } from "sonner";
+
 import { usePaletteActionsContext } from "./PaletteActionsContext";
-import Link from "next/link";
 
 interface PaletteCardActionsProps {
   palette: Palette;
@@ -58,9 +60,12 @@ export function PaletteCardActions({
   onAddToProjects,
   hideDetailsActions = false,
 }: PaletteCardActionsProps) {
+  const { openPaletteAction } = usePaletteActionsContext();
+
   const handleCopy = async (format: PaletteCopyFormat = "json") => {
     try {
       await copyPalette(palette, format);
+
       toast.success(
         format === "json"
           ? "Palette copied to clipboard"
@@ -71,7 +76,7 @@ export function PaletteCardActions({
       toast.error("Failed to copy palette");
     }
   };
-  const { openPaletteAction } = usePaletteActionsContext();
+
   return (
     <div className="flex items-center gap-2">
       <Button
@@ -112,12 +117,14 @@ export function PaletteCardActions({
             </Button>
           }
         />
+
         <DropdownMenuContent align="end">
           <DropdownMenuGroup>
             <DropdownMenuItem onClick={() => onDownload(palette, "png")}>
               <FileImage />
               Download as PNG
             </DropdownMenuItem>
+
             <DropdownMenuItem onClick={() => onDownload(palette, "svg")}>
               <FileCode />
               Download as SVG
@@ -138,6 +145,7 @@ export function PaletteCardActions({
             </Button>
           }
         />
+
         <DropdownMenuContent>
           <DropdownMenuGroup>
             <DropdownMenuItem onClick={() => handleCopy("json")}>
@@ -219,12 +227,14 @@ export function PaletteCardActions({
               <FolderPlus />
               Add to projects
             </DropdownMenuItem>
+
             <DropdownMenuItem
               onClick={() => openPaletteAction(palette.id, "quick-view")}
             >
               <Eye />
               Quick view
             </DropdownMenuItem>
+
             {!hideDetailsActions && (
               <DropdownMenuItem
                 render={
@@ -246,7 +256,7 @@ export function PaletteCardActions({
               View mode
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <Activity />
+              <ActivityIcon />
               Visualize palette
             </DropdownMenuItem>
             {!hideDetailsActions && (
