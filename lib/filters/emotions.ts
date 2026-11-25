@@ -1,0 +1,38 @@
+const EMOTIONS = [
+  "Joy",
+  "Excitement",
+  "Optimism",
+  "Hope",
+  "Love",
+  "Passion",
+  "Desire",
+  "Comfort",
+  "Contentment",
+  "Relief",
+  "Trust",
+  "Security",
+  "Loyalty",
+  "Pride",
+  "Courage",
+  "Inspiration",
+  "Curiosity",
+  "Wonder",
+  "Awe",
+  "Surprise",
+  "Amusement",
+  "Longing",
+  "Sadness",
+  "Loneliness",
+  "Anxiety",
+  "Tension",
+  "Fear",
+  "Anger",
+  "Aggression",
+  "Intrigue",
+  "Gratitude",
+  "Belonging",
+] as const;
+
+export type Emotion = (typeof EMOTIONS)[number];
+
+export default EMOTIONS;
