@@ -72,12 +72,18 @@ export default function Header() {
                     Account
                   </DropdownMenuItem>
 
-                  <DropdownMenuItem>
+                  <DropdownMenuItem
+                    render={<Link href={user ? `/a/${user.id}/saved` : "#"} />}
+                  >
                     <BookmarkIcon />
                     Saved
                   </DropdownMenuItem>
 
-                  <DropdownMenuItem>
+                  <DropdownMenuItem
+                    render={
+                      <Link href={user ? `/a/${user.id}/favorites` : "#"} />
+                    }
+                  >
                     <StarIcon />
                     Favorites
                   </DropdownMenuItem>

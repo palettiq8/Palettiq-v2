@@ -1,3 +1,5 @@
+"use client";
+
 import {
   ActivityIcon,
   Bookmark,
@@ -13,6 +15,7 @@ import {
   Maximize2,
   Star,
   TextSearch,
+  Trash2,
   View,
 } from "lucide-react";
 import Link from "next/link";
@@ -34,6 +37,17 @@ import type { Palette } from "@/lib/types";
 import { copyPalette, type PaletteCopyFormat } from "@/lib/utils/copy-palette";
 
 import { usePaletteActionsContext } from "./PaletteActionsContext";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useState } from "react";
 
 interface PaletteCardActionsProps {
   palette: Palette;
@@ -45,7 +59,11 @@ interface PaletteCardActionsProps {
   onToggleSave: (paletteId: number) => void;
   onDownload: (palette: Palette, format: "png" | "svg") => void;
   onAddToProjects: (paletteId: number) => void;
-  hideDetailsActions?: boolean;
+  hideViewDetails?: boolean;
+  hideExploreSimilar?: boolean;
+  showDelete?: boolean;
+  onRemove?: (paletteId: number) => Promise<void>;
+  onOpenFullscreen: () => void;
 }
 
 export function PaletteCardActions({
@@ -58,8 +76,27 @@ export function PaletteCardActions({
   onToggleSave,
   onDownload,
   onAddToProjects,
-  hideDetailsActions = false,
+  hideViewDetails = false,
+  hideExploreSimilar = false,
+  showDelete = false,
+  onRemove,
+  onOpenFullscreen,
 }: PaletteCardActionsProps) {
+  const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
+  const [isRemoving, setIsRemoving] = useState(false);
+
+  const handleRemove = async () => {
+    if (!onRemove || isRemoving) return;
+
+    setIsRemoving(true);
+
+    try {
+      await onRemove(palette.id);
+      setRemoveDialogOpen(false);
+    } finally {
+      setIsRemoving(false);
+    }
+  };
   const { openPaletteAction } = usePaletteActionsContext();
 
   const handleCopy = async (format: PaletteCopyFormat = "json") => {
@@ -235,7 +272,7 @@ export function PaletteCardActions({
               Quick view
             </DropdownMenuItem>
 
-            {!hideDetailsActions && (
+            {!hideViewDetails && (
               <DropdownMenuItem
                 render={
                   <Link
@@ -247,9 +284,9 @@ export function PaletteCardActions({
                 View details
               </DropdownMenuItem>
             )}
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={onOpenFullscreen}>
               <Maximize2 />
-              Open on screen
+              Open fullscreen
             </DropdownMenuItem>
             <DropdownMenuItem>
               <Columns3 />
@@ -259,15 +296,61 @@ export function PaletteCardActions({
               <ActivityIcon />
               Visualize palette
             </DropdownMenuItem>
-            {!hideDetailsActions && (
+            {!hideExploreSimilar && (
               <DropdownMenuItem>
                 <TextSearch />
                 Explore similar
               </DropdownMenuItem>
             )}
+            {showDelete && onRemove && (
+              <DropdownMenuItem
+                variant="destructive"
+                onClick={() => setRemoveDialogOpen(true)}
+              >
+                <Trash2 />
+                Remove
+              </DropdownMenuItem>
+            )}
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      {showDelete && (
+        <AlertDialog
+          open={removeDialogOpen}
+          onOpenChange={(open) => {
+            if (!isRemoving) setRemoveDialogOpen(open);
+          }}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Remove palette from project?</AlertDialogTitle>
+
+              <AlertDialogDescription>
+                This palette will be removed from this project. The original
+                palette will not be deleted.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isRemoving}>
+                Cancel
+              </AlertDialogCancel>
+
+              <AlertDialogAction
+                variant="destructive"
+                onClick={(event) => {
+                  event.preventDefault();
+                  void handleRemove();
+                }}
+                disabled={isRemoving}
+              >
+                {isRemoving ? "Removing..." : "Remove"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </div>
   );
 }

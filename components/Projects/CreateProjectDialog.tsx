@@ -1,9 +1,12 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { toast } from "sonner";
 
-import { useCreateProject } from "@/hooks/queries/useProjects";
+import {
+  useCreateProject,
+  useUpdateProject,
+} from "@/hooks/queries/useProjects";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,25 +24,47 @@ import {
 interface CreateProjectDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  project?: {
+    id: number;
+    name: string;
+    description: string | null;
+  };
 }
 
 export default function CreateProjectDialog({
   open,
   onOpenChange,
+  project,
 }: CreateProjectDialogProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
 
   const createProjectMutation = useCreateProject();
+  const updateProjectMutation = useUpdateProject();
+
+  const isEditing = !!project;
+  const isPending =
+    createProjectMutation.isPending || updateProjectMutation.isPending;
 
   function resetForm() {
     setName("");
     setDescription("");
     createProjectMutation.reset();
+    updateProjectMutation.reset();
   }
 
+  useEffect(() => {
+    if (!open) return;
+
+    setName(project?.name ?? "");
+    setDescription(project?.description ?? "");
+
+    createProjectMutation.reset();
+    updateProjectMutation.reset();
+  }, [open, project]);
+
   function handleOpenChange(value: boolean) {
-    if (!value && createProjectMutation.isPending) return;
+    if (!value && isPending) return;
 
     if (!value) resetForm();
 
@@ -52,21 +77,33 @@ export default function CreateProjectDialog({
     const trimmedName = name.trim();
     const trimmedDescription = description.trim();
 
-    if (!trimmedName || createProjectMutation.isPending) return;
+    if (!trimmedName || isPending) return;
 
     try {
-      await createProjectMutation.mutateAsync({
-        name: trimmedName,
-        description: trimmedDescription,
-      });
+      if (project) {
+        await updateProjectMutation.mutateAsync({
+          projectId: project.id,
+          name: trimmedName,
+          description: trimmedDescription,
+        });
 
-      toast.success("Project created successfully.");
+        toast.success("Project updated successfully.");
+      } else {
+        await createProjectMutation.mutateAsync({
+          name: trimmedName,
+          description: trimmedDescription,
+        });
+
+        toast.success("Project created successfully.");
+      }
 
       resetForm();
       onOpenChange(false);
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to create project.",
+        error instanceof Error
+          ? error.message
+          : `Failed to ${isEditing ? "update" : "create"} project.`,
       );
     }
   }
@@ -75,9 +112,13 @@ export default function CreateProjectDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="overflow-hidden sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Create project</DialogTitle>
+          <DialogTitle>
+            {isEditing ? "Edit project" : "Create project"}
+          </DialogTitle>
           <DialogDescription>
-            Create a project to organize and manage your saved color palettes.
+            {isEditing
+              ? "Update your project name and description."
+              : "Create a project to organize and manage your saved color palettes."}
           </DialogDescription>
         </DialogHeader>
 
@@ -120,18 +161,19 @@ export default function CreateProjectDialog({
               type="button"
               variant="outline"
               onClick={() => handleOpenChange(false)}
-              disabled={createProjectMutation.isPending}
+              disabled={isPending}
             >
               Cancel
             </Button>
 
-            <Button
-              type="submit"
-              disabled={!name.trim() || createProjectMutation.isPending}
-            >
-              {createProjectMutation.isPending
-                ? "Creating..."
-                : "Create project"}
+            <Button type="submit" disabled={!name.trim() || isPending}>
+              {isPending
+                ? isEditing
+                  ? "Saving..."
+                  : "Creating..."
+                : isEditing
+                  ? "Save changes"
+                  : "Create project"}
             </Button>
           </DialogFooter>
         </form>

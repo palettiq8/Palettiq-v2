@@ -9,6 +9,12 @@ interface CreateProjectParams {
   description?: string;
 }
 
+interface UpdateProjectParams {
+  projectId: number;
+  name: string;
+  description?: string;
+}
+
 function escapeLikePattern(value: string) {
   return value.replace(/[\\%_]/g, "\\$&");
 }
@@ -31,7 +37,12 @@ export async function fetchProjects({ search = "" }: FetchProjectsParams = {}) {
 
   let query = supabase
     .from("projects")
-    .select("*")
+    .select(
+      `
+      *,
+      palette_saves(count)
+    `,
+    )
     .eq("user_id", user.id)
     .order("updated_at", { ascending: false });
 
@@ -43,7 +54,10 @@ export async function fetchProjects({ search = "" }: FetchProjectsParams = {}) {
 
   if (error) throw new Error(error.message);
 
-  return data ?? [];
+  return (data ?? []).map((project) => ({
+  ...project,
+  paletteCount: project.palette_saves?.[0]?.count ?? 0,
+}));
 }
 
 export async function createProject({
@@ -105,4 +119,44 @@ export async function deleteProject(projectId: number) {
     .eq("user_id", user.id);
 
   if (error) throw new Error(error.message);
+}
+
+export async function updateProject({
+  projectId,
+  name,
+  description,
+}: UpdateProjectParams) {
+  const supabase = createClient();
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError) throw new Error(authError.message);
+
+  if (!user) {
+    throw new Error("You must be logged in to update a project.");
+  }
+
+  const trimmedName = name.trim();
+
+  if (!trimmedName) {
+    throw new Error("Project name is required.");
+  }
+
+  const { data, error } = await supabase
+    .from("projects")
+    .update({
+      name: trimmedName,
+      description: description?.trim() || null,
+    })
+    .eq("id", projectId)
+    .eq("user_id", user.id)
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+
+  return data;
 }

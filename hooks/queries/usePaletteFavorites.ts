@@ -2,15 +2,35 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
   fetchFavoritePaletteIds,
+  fetchFavoritePalettes,
+  fetchRecentFavoritePalettes,
   setPaletteFavorite,
 } from "@/lib/queries/palette-favorites";
 
 export const favoritePaletteQueryKey = ["favorite-palette-ids"];
+export const favoritePalettesQueryKey = ["favorite-palettes"];
+export const recentFavoritePalettesQueryKey = ["recent-favorite-palettes"];
 
 export function useFavoritePalettes() {
   return useQuery({
     queryKey: favoritePaletteQueryKey,
     queryFn: fetchFavoritePaletteIds,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function usePaginatedFavoritePalettes(page: number, pageSize: number) {
+  return useQuery({
+    queryKey: [...favoritePalettesQueryKey, page, pageSize],
+    queryFn: () => fetchFavoritePalettes({ page, pageSize }),
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useRecentFavoritePalettes() {
+  return useQuery({
+    queryKey: recentFavoritePalettesQueryKey,
+    queryFn: fetchRecentFavoritePalettes,
     staleTime: 5 * 60 * 1000,
   });
 }
@@ -56,11 +76,24 @@ export function useSetPaletteFavorite() {
     },
 
     onSuccess: (_data, variables) => {
+      const invalidations = [
+        queryClient.invalidateQueries({
+          queryKey: recentFavoritePalettesQueryKey,
+        }),
+        queryClient.invalidateQueries({
+          queryKey: favoritePalettesQueryKey,
+        }),
+      ];
+
       if (variables.isFavorite) {
-        return queryClient.invalidateQueries({
-          queryKey: ["palettes"],
-        });
+        invalidations.push(
+          queryClient.invalidateQueries({
+            queryKey: ["palettes"],
+          }),
+        );
       }
+
+      return Promise.all(invalidations);
     },
   });
 }

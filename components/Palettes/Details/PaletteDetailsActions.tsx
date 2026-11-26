@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { toast } from "sonner";
 
 import type { Palette } from "@/lib/types";
 import { useNormalSavedPalettes } from "@/hooks/queries/usePaletteSaves";
@@ -55,7 +54,8 @@ export function PaletteDetailsActions({ palette }: PaletteDetailsActionsProps) {
         onToggleSave={handleToggleNormalSave}
         onDownload={handleDownloadPalette}
         onAddToProjects={openAddToProjects}
-        hideDetailsActions
+        hideViewDetails
+        hideExploreSimilar
       />
 
       {selectedPaletteId !== null && (
@@ -66,7 +66,6 @@ export function PaletteDetailsActions({ palette }: PaletteDetailsActionsProps) {
             setAddToProjectsOpen(open);
             if (!open) setSelectedPaletteId(null);
           }}
-          onSaved={() => toast.success("Palette added to your projects.")}
         />
       )}
     </PaletteActionsProvider>

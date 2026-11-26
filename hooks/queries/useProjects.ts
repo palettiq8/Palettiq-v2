@@ -4,6 +4,7 @@ import {
   createProject,
   deleteProject,
   fetchProjects,
+  updateProject,
 } from "@/lib/queries/projects";
 
 export function useProjects(search = "", enabled = true) {
@@ -35,6 +36,20 @@ export function useDeleteProject() {
 
   return useMutation({
     mutationFn: deleteProject,
+
+    onSuccess: () => {
+      return queryClient.invalidateQueries({
+        queryKey: ["projects"],
+      });
+    },
+  });
+}
+
+export function useUpdateProject() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateProject,
 
     onSuccess: () => {
       return queryClient.invalidateQueries({

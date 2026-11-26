@@ -46,7 +46,7 @@ export function Footer() {
                 height={28}
                 priority
               />
-              <span className="text-xl font-semibold tracking-tight">
+              <span className="text-xl font-semibold tracking-tight select-none">
                 Palettiq
               </span>
             </Link>

@@ -1,8 +1,11 @@
 import type { ReactNode } from "react";
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
+import { connection } from "next/server";
 
-import { AccountContent } from "@/components/Account/AccountContent";
 import { AccountSidebar } from "@/components/Account/AccountSidebar";
+import { AccountContent } from "@/components/Account/AccountContent";
+import { createClient } from "@/lib/supabase/server";
 
 interface AccountLayoutProps {
   children: ReactNode;
@@ -30,7 +33,23 @@ export default function AccountLayout({
 }
 
 async function AccountLayoutContent({ children, params }: AccountLayoutProps) {
+  await connection();
+
   const { userId } = await params;
+
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/");
+  }
+
+  if (user.id !== userId) {
+    redirect(`/a/${user.id}`);
+  }
 
   return (
     <div className="flex h-[calc(100dvh-4rem)] min-h-0 w-full overflow-hidden">

@@ -1,12 +1,14 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Copy } from "lucide-react";
+import { Copy, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { formatRelativeTime, getContrastTextColor } from "@/lib/utils";
 import type { Palette } from "@/lib/types";
 import { PaletteCardActions } from "./PaletteCardActions";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 interface PaletteCardProps {
   palette: Palette;
@@ -18,6 +20,10 @@ interface PaletteCardProps {
   onToggleSave: (paletteId: number) => void;
   onDownload: (palette: Palette, format: "png" | "svg") => void;
   onAddToProjects: (paletteId: number) => void;
+  hideViewDetails?: boolean;
+  hideExploreSimilar?: boolean;
+  showDelete?: boolean;
+  onRemove?: (paletteId: number) => Promise<void>;
 }
 
 export function PaletteCard({
@@ -30,7 +36,61 @@ export function PaletteCard({
   onToggleSave,
   onDownload,
   onAddToProjects,
+  hideViewDetails = false,
+  hideExploreSimilar = false,
+  showDelete = false,
+  onRemove,
 }: PaletteCardProps) {
+  const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
+  const fullscreenRef = useRef<HTMLDivElement>(null);
+
+  async function openFullscreen() {
+    const element = fullscreenRef.current;
+
+    if (!element) return;
+
+    // Must happen synchronously during the user's click.
+    element.hidden = false;
+
+    try {
+      await element.requestFullscreen();
+      setIsFullscreenOpen(true);
+    } catch (error) {
+      element.hidden = true;
+      console.error("Failed to open fullscreen:", error);
+      toast.error("Unable to open fullscreen");
+    }
+  }
+
+  function closeFullscreen() {
+    if (document.fullscreenElement === fullscreenRef.current) {
+      void document.exitFullscreen();
+    } else {
+      setIsFullscreenOpen(false);
+    }
+  }
+
+  useEffect(() => {
+    function handleFullscreenChange() {
+      const isFullscreen = document.fullscreenElement === fullscreenRef.current;
+
+      setIsFullscreenOpen(isFullscreen);
+
+      if (!isFullscreen && fullscreenRef.current) {
+        fullscreenRef.current.hidden = true;
+      }
+    }
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
+  }, []);
+
+  const closeButtonColor = palette.colors[0]?.hex ?? "#FFFFFF";
+  const closeButtonTextColor = getContrastTextColor(closeButtonColor);
+
   async function handleCopyColor(hex: string) {
     try {
       await navigator.clipboard.writeText(hex.toUpperCase());
@@ -42,6 +102,37 @@ export function PaletteCard({
 
   return (
     <article className="overflow-hidden rounded-xl border bg-card">
+      <div
+        ref={fullscreenRef}
+        hidden={!isFullscreenOpen}
+        className={`fixed inset-0 z-100 flex h-screen w-screen bg-background ${
+          isFullscreenOpen ? "animate-in fade-in zoom-in-95 duration-300" : ""
+        }`}
+      >
+        <div className="flex h-full w-full animate-in fade-in duration-500">
+          {palette.colors.map((color) => (
+            <div
+              key={color.id}
+              className="h-full min-w-0 flex-1"
+              style={{ backgroundColor: color.hex ?? "transparent" }}
+            />
+          ))}
+        </div>
+
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Close fullscreen"
+          onClick={closeFullscreen}
+          className="absolute right-4 top-4 z-10 rounded-full shadow-md animate-in fade-in zoom-in-75 duration-300 hover:opacity-90"
+          style={{
+            backgroundColor: closeButtonColor,
+            color: closeButtonTextColor,
+          }}
+        >
+          <X />
+        </Button>
+      </div>
       <div className="flex h-40">
         {palette.colors.map((color) => (
           <button
@@ -91,10 +182,15 @@ export function PaletteCard({
             onToggleSave={onToggleSave}
             onDownload={onDownload}
             onAddToProjects={onAddToProjects}
+            hideViewDetails={hideViewDetails}
+            hideExploreSimilar={hideExploreSimilar}
+            showDelete={showDelete}
+            onRemove={onRemove}
+            onOpenFullscreen={openFullscreen}
           />
         </div>
 
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
           {palette.identity?.short_description}
         </p>
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Search, FolderOpen, X } from "lucide-react";
+import { FolderOpen, Plus, Search, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { useProjects } from "@/hooks/queries/useProjects";
@@ -14,11 +14,11 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Empty,
-  EmptyHeader,
-  EmptyTitle,
   EmptyDescription,
+  EmptyHeader,
   EmptyMedia,
-} from "../ui/empty";
+  EmptyTitle,
+} from "@/components/ui/empty";
 import {
   Dialog,
   DialogClose,
@@ -28,8 +28,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Spinner } from "../ui/spinner";
-import { ScrollArea } from "../ui/scroll-area";
+import { Spinner } from "@/components/ui/spinner";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface AddToProjectsDialogProps {
   paletteId: number;
@@ -118,7 +118,6 @@ export default function AddToProjectsDialog({
     <>
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className="sm:max-w-md">
-          {/* Header */}
           <DialogHeader className="flex flex-row items-start justify-between">
             <div className="space-y-1.5">
               <DialogTitle>Add to projects</DialogTitle>
@@ -137,9 +136,7 @@ export default function AddToProjectsDialog({
             />
           </DialogHeader>
 
-          {/* Body */}
           <div className="space-y-4">
-            {/* Search and Create */}
             <div className="flex items-center gap-2">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -162,15 +159,14 @@ export default function AddToProjectsDialog({
               </Button>
             </div>
 
-            {/* Project List */}
-            <ScrollArea>
-              <div className="max-h-64 min-h-32">
+            <ScrollArea className="h-64">
+              <div className="min-h-32">
                 {isPending ? (
-                  <div className="flex min-h-32 items-center justify-center">
+                  <div className="flex h-32 items-center justify-center">
                     <Spinner />
                   </div>
                 ) : isError ? (
-                  <div className="flex min-h-32 items-center justify-center text-sm text-destructive">
+                  <div className="flex h-32 items-center justify-center text-sm text-destructive">
                     Failed to load projects!
                   </div>
                 ) : projects.length === 0 ? (
@@ -199,7 +195,7 @@ export default function AddToProjectsDialog({
                       return (
                         <label
                           key={project.id}
-                          className="flex cursor-pointer items-center gap-3 rounded-lg border border-transparent p-2 transition-colors hover:bg-muted/60 has-data-[state=checked]:border-border has-data-[state=checked]:bg-muted/40"
+                          className="flex cursor-pointer items-center gap-3 rounded-md p-2 transition-colors hover:bg-muted/60"
                         >
                           <Checkbox
                             className="shrink-0"
@@ -213,11 +209,15 @@ export default function AddToProjectsDialog({
                             </p>
 
                             {project.description && (
-                              <p className="mt-0.5 line-clamp-1 break-all text-xs text-muted-foreground">
+                              <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
                                 {project.description}
                               </p>
                             )}
                           </div>
+
+                          <span className="shrink-0 rounded-full bg-card px-2 py-0.5 text-xs font-medium tabular-nums">
+                            {project.paletteCount}
+                          </span>
                         </label>
                       );
                     })}
@@ -233,11 +233,11 @@ export default function AddToProjectsDialog({
             )}
           </div>
 
-          {/* Footer */}
           <DialogFooter className="sm:justify-between">
             <p className="self-center text-xs text-muted-foreground">
               {selectedProjectIds.length} selected
             </p>
+
             <div className="flex gap-2">
               <Button
                 variant="outline"

@@ -1,0 +1,159 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { Palette as PaletteIcon } from "lucide-react";
+
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+
+import { useNormalSavedPalettes } from "@/hooks/queries/usePaletteSaves";
+import {
+  useFavoritePalettes,
+  usePaginatedFavoritePalettes,
+} from "@/hooks/queries/usePaletteFavorites";
+import { usePaletteActions } from "@/hooks/usePaletteActions";
+
+import { PaletteGrid } from "@/components/Palettes/PaletteGrid";
+import { PalettePagination } from "@/components/Palettes/PalettePagination";
+import AddToProjectsDialog from "@/components/Projects/AddToProjectsDialog";
+import PaletteSkeleton from "../Palettes/PaletteSkeleton";
+
+const PAGE_SIZE = 30;
+
+export function AccountFavoritePalettes() {
+  const [page, setPage] = useState(1);
+
+  const { data: normalSavedPaletteIds = [], isPending: isSavedIdsPending } =
+    useNormalSavedPalettes();
+
+  const { data: favoritePaletteIds = [] } = useFavoritePalettes();
+
+  const { data, isPending, isError, error } = usePaginatedFavoritePalettes(
+    page,
+    PAGE_SIZE,
+  );
+
+  const favoritePalettes = data?.palettes ?? [];
+  const totalCount = data?.totalCount ?? 0;
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+
+  const {
+    handleToggleNormalSave,
+    handleToggleFavorite,
+    handleAddToProjects,
+    handleDownloadPalette,
+    savingPaletteId,
+    favoritingPaletteId,
+  } = usePaletteActions(normalSavedPaletteIds, favoritePaletteIds);
+
+  const [selectedPaletteId, setSelectedPaletteId] = useState<number | null>(
+    null,
+  );
+  const [addToProjectsOpen, setAddToProjectsOpen] = useState(false);
+
+  useEffect(() => {
+    if (!data) return;
+
+    if (page > Math.max(1, totalPages)) {
+      setPage(Math.max(1, totalPages));
+    }
+  }, [data, page, totalPages]);
+
+  const openAddToProjects = async (paletteId: number) => {
+    const authenticated = await handleAddToProjects(paletteId);
+
+    if (!authenticated) return;
+
+    setSelectedPaletteId(paletteId);
+    setAddToProjectsOpen(true);
+  };
+
+  if (isPending || isSavedIdsPending) {
+    return (
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: 12 }).map((_, index) => (
+          <PaletteSkeleton key={index} />
+        ))}
+      </div>
+    );
+  }
+
+  if (isError && !data) {
+    return (
+      <p className="text-sm text-destructive">
+        Failed to load favorite palettes: {error.message}
+      </p>
+    );
+  }
+
+  if (favoritePalettes.length === 0) {
+    return (
+      <div className="grid w-full place-content-center">
+        <Empty className="border border-dashed">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <PaletteIcon />
+            </EmptyMedia>
+
+            <EmptyTitle>No favorite palettes yet</EmptyTitle>
+
+            <EmptyDescription>
+              Palettes you mark as favorite will appear here.
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <PaletteGrid
+        palettes={favoritePalettes}
+        favoritePaletteIds={favoritePaletteIds}
+        normalSavedPaletteIds={normalSavedPaletteIds}
+        savingPaletteId={savingPaletteId}
+        favoritingPaletteId={favoritingPaletteId}
+        onToggleFavorite={handleToggleFavorite}
+        onToggleSave={handleToggleNormalSave}
+        onDownload={handleDownloadPalette}
+        onAddToProjects={openAddToProjects}
+        hideExploreSimilar
+      />
+
+      <PalettePagination
+        page={page}
+        totalPages={totalPages}
+        pageSize={PAGE_SIZE}
+        totalCount={totalCount}
+        onPageChange={(nextPage) => {
+          setPage(nextPage);
+
+          document.getElementById("account-content")?.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+        }}
+      />
+
+      {selectedPaletteId !== null && (
+        <AddToProjectsDialog
+          paletteId={selectedPaletteId}
+          open={addToProjectsOpen}
+          onOpenChange={(open) => {
+            setAddToProjectsOpen(open);
+
+            if (!open) {
+              setSelectedPaletteId(null);
+            }
+          }}
+        />
+      )}
+    </>
+  );
+}

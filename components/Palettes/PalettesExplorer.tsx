@@ -8,9 +8,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Palette as PaletteIcon } from "lucide-react";
-import { toast } from "sonner";
 import { usePalettes } from "@/hooks/queries/usePalettes";
 import { useNormalSavedPalettes } from "@/hooks/queries/usePaletteSaves";
 import { useFavoritePalettes } from "@/hooks/queries/usePaletteFavorites";
@@ -19,6 +17,7 @@ import { usePaletteActions } from "@/hooks/usePaletteActions";
 import AddToProjectsDialog from "@/components/Projects/AddToProjectsDialog";
 import { PaletteGrid } from "@/components/Palettes/PaletteGrid";
 import { PalettePagination } from "@/components/Palettes/PalettePagination";
+import PaletteSkeleton from "./PaletteSkeleton";
 
 const PAGE_SIZE = 30;
 
@@ -66,30 +65,7 @@ export default function PalettesExplorer() {
   if (isPending) {
     return (
       <div className="grid min-h-[calc(100vh-4rem)] w-full content-start grid-cols-1 gap-2 px-6 pb-6 pt-0 sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 12 }).map((_, index) => (
-          <div
-            key={index}
-            className="w-full overflow-hidden rounded-xl border bg-card"
-          >
-            <Skeleton className="h-40 w-full rounded-none" />
-            <div className="w-full p-4">
-              <div className="flex w-full items-center justify-between">
-                <Skeleton className="h-5 w-1/3 rounded-full" />
-                <div className="flex items-center gap-2">
-                  <Skeleton className="size-8 rounded-full" />
-                  <Skeleton className="size-8 rounded-full" />
-                  <Skeleton className="size-8 rounded-full" />
-                </div>
-              </div>
-              <Skeleton className="mt-2 h-4 w-full rounded-full" />
-              <Skeleton className="mt-1 h-4 w-3/4 rounded-full" />
-              <div className="mt-3 flex w-full items-center justify-between">
-                <Skeleton className="h-5 w-1/4 rounded-full" />
-                <Skeleton className="h-5 w-1/4 rounded-full" />
-              </div>
-            </div>
-          </div>
-        ))}
+        {Array.from({ length: 12 }).map((_, index) => <PaletteSkeleton key={index} />)}
       </div>
     );
   }
@@ -153,7 +129,6 @@ export default function PalettesExplorer() {
             setAddToProjectsOpen(open);
             if (!open) setSelectedPaletteId(null);
           }}
-          onSaved={() => toast.success("Palette added to your projects.")}
         />
       )}
     </div>

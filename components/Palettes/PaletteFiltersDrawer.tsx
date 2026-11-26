@@ -1,11 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Search, SlidersHorizontal, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
+
 import {
   Accordion,
   AccordionContent,
@@ -29,8 +31,6 @@ import {
   usePalettesExploreStore,
   PALETTE_FILTER_GROUPS,
 } from "@/store/usePalettesExploreStore";
-
-import { SlidersHorizontal, X, Search } from "lucide-react";
 
 export default function PaletteFiltersDrawer() {
   const [search, setSearch] = useState("");
@@ -97,21 +97,23 @@ export default function PaletteFiltersDrawer() {
       />
 
       <DrawerContent className="mx-auto flex h-[85dvh] max-h-225 w-[calc(100%-1rem)] max-w-2xl flex-col">
-        <DrawerHeader className="px-4 pt-4">
+        <DrawerHeader className="p-6 pb-4">
           <div className="flex items-center justify-between">
             <DrawerTitle>Filters</DrawerTitle>
+
             <DrawerClose
               render={
                 <Button variant="outline" size="icon">
-                  <X />
+                  <X className="size-4" />
                   <span className="sr-only">Close</span>
                 </Button>
               }
             />
           </div>
 
-          <div className="relative mt-2">
-            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <div className="relative pt-2">
+            <Search className="absolute left-3 top-4.5 size-4 text-muted-foreground" />
+
             <Input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
@@ -121,25 +123,20 @@ export default function PaletteFiltersDrawer() {
           </div>
         </DrawerHeader>
 
-        <ScrollArea className="min-h-0 flex-1 p-4">
-          <div className="space-y-3">
+        <ScrollArea className="min-h-0 flex-1 px-6">
+          <div className="space-y-6 pb-4">
             {filteredGroups.map((group) => (
-              <section key={group.label} className="">
+              <section key={group.label} className="space-y-2">
                 <h3 className="text-sm font-semibold text-muted-foreground">
                   {group.label}
                 </h3>
 
-                <Accordion className="w-full mt-2">
+                <Accordion className="w-full">
                   {group.categories.map((category) => {
                     const selected = filters[category.key];
-                    const options = category.options;
 
                     return (
-                      <AccordionItem
-                        key={category.key}
-                        value={category.key}
-                        className="border-b"
-                      >
+                      <AccordionItem key={category.key} value={category.key}>
                         <AccordionTrigger className="py-3 text-sm hover:no-underline">
                           <span className="flex items-center gap-2">
                             {category.label}
@@ -156,8 +153,8 @@ export default function PaletteFiltersDrawer() {
                         </AccordionTrigger>
 
                         <AccordionContent>
-                          <div className="grid grid-cols-1 gap-3 pb-3 sm:grid-cols-2">
-                            {options.map((option) => {
+                          <div className="grid grid-cols-1 gap-x-4 gap-y-2 pb-3 sm:grid-cols-2">
+                            {category.options.map((option) => {
                               const id = `${category.key}-${option
                                 .toLowerCase()
                                 .replace(/[^a-z0-9]+/g, "-")}`;
@@ -175,16 +172,11 @@ export default function PaletteFiltersDrawer() {
                                       toggleFilter(category.key, option)
                                     }
                                   />
+
                                   <span className="leading-none">{option}</span>
                                 </label>
                               );
                             })}
-
-                            {options.length === 0 && (
-                              <p className="text-sm text-muted-foreground">
-                                No matching options.
-                              </p>
-                            )}
                           </div>
                         </AccordionContent>
                       </AccordionItem>
@@ -205,7 +197,7 @@ export default function PaletteFiltersDrawer() {
           </div>
         </ScrollArea>
 
-        <DrawerFooter>
+        <DrawerFooter className="p-6 pt-4">
           <div className="flex flex-row gap-2">
             <Button
               size="lg"
@@ -219,13 +211,7 @@ export default function PaletteFiltersDrawer() {
 
             <DrawerClose
               render={
-                <Button
-                  onClick={() => {
-                    applyFilters();
-                  }}
-                  size="lg"
-                  className="flex-1"
-                >
+                <Button size="lg" className="flex-1" onClick={applyFilters}>
                   Apply Filters
                   {draftFilterCount > 0 && ` (${draftFilterCount})`}
                 </Button>
