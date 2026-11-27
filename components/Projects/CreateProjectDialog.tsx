@@ -14,12 +14,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { X } from "lucide-react";
 
 interface CreateProjectDialogProps {
   open: boolean;
@@ -111,15 +113,25 @@ export default function CreateProjectDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="overflow-hidden sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>
-            {isEditing ? "Edit project" : "Create project"}
-          </DialogTitle>
-          <DialogDescription>
-            {isEditing
-              ? "Update your project name and description."
-              : "Create a project to organize and manage your saved color palettes."}
-          </DialogDescription>
+        <DialogHeader className="flex flex-row items-start justify-between">
+          <div className="space-y-1.5">
+            <DialogTitle>
+              {isEditing ? "Edit project" : "Create project"}
+            </DialogTitle>
+            <DialogDescription>
+              {isEditing
+                ? "Update your project name and description."
+                : "Create a project to organize and manage your saved color palettes."}
+            </DialogDescription>
+          </div>
+          <DialogClose
+            render={
+              <Button variant="outline" size="icon">
+                <X className="size-4" />
+                <span className="sr-only">Close</span>
+              </Button>
+            }
+          />
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">

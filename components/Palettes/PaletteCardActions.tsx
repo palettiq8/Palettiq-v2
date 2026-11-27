@@ -64,6 +64,7 @@ interface PaletteCardActionsProps {
   showDelete?: boolean;
   onRemove?: (paletteId: number) => Promise<void>;
   onOpenFullscreen: () => void;
+  onOpenViewMode: () => void;
 }
 
 export function PaletteCardActions({
@@ -81,6 +82,7 @@ export function PaletteCardActions({
   showDelete = false,
   onRemove,
   onOpenFullscreen,
+  onOpenViewMode,
 }: PaletteCardActionsProps) {
   const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
@@ -288,7 +290,7 @@ export function PaletteCardActions({
               <Maximize2 />
               Open fullscreen
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={onOpenViewMode}>
               <Columns3 />
               View mode
             </DropdownMenuItem>

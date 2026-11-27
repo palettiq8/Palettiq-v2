@@ -4,7 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Copy, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { formatRelativeTime, getContrastTextColor } from "@/lib/utils";
+import {
+  formatRelativeTime,
+  getContrastTextColor,
+  getShowcaseBackground,
+} from "@/lib/utils";
 import type { Palette } from "@/lib/types";
 import { PaletteCardActions } from "./PaletteCardActions";
 import Link from "next/link";
@@ -42,25 +46,32 @@ export function PaletteCard({
   onRemove,
 }: PaletteCardProps) {
   const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
+  const [fullscreenMode, setFullscreenMode] = useState<"standard" | "showcase">(
+    "standard",
+  );
   const fullscreenRef = useRef<HTMLDivElement>(null);
 
-  async function openFullscreen() {
+  async function openFullscreen(mode: "standard" | "showcase") {
     const element = fullscreenRef.current;
 
     if (!element) return;
 
-    // Must happen synchronously during the user's click.
     element.hidden = false;
+    setFullscreenMode(mode);
 
     try {
       await element.requestFullscreen();
       setIsFullscreenOpen(true);
     } catch (error) {
       element.hidden = true;
+      setIsFullscreenOpen(false);
       console.error("Failed to open fullscreen:", error);
       toast.error("Unable to open fullscreen");
     }
   }
+
+  const handleOpenFullscreen = () => openFullscreen("standard");
+  const handleOpenViewMode = () => openFullscreen("showcase");
 
   function closeFullscreen() {
     if (document.fullscreenElement === fullscreenRef.current) {
@@ -105,26 +116,51 @@ export function PaletteCard({
       <div
         ref={fullscreenRef}
         hidden={!isFullscreenOpen}
-        className={`fixed inset-0 z-100 flex h-screen w-screen bg-background ${
+        className={`fixed inset-0 z-100 flex h-screen w-screen ${
+          fullscreenMode === "showcase"
+            ? "items-center justify-center"
+            : "bg-background"
+        } ${
           isFullscreenOpen ? "animate-in fade-in zoom-in-95 duration-300" : ""
         }`}
+        style={
+          fullscreenMode === "showcase"
+            ? { backgroundColor: getShowcaseBackground(palette.colors) }
+            : undefined
+        }
       >
-        <div className="flex h-full w-full animate-in fade-in duration-500">
-          {palette.colors.map((color) => (
-            <div
-              key={color.id}
-              className="h-full min-w-0 flex-1"
-              style={{ backgroundColor: color.hex ?? "transparent" }}
-            />
-          ))}
-        </div>
+        {fullscreenMode === "standard" ? (
+          <div className="flex h-full w-full animate-in fade-in duration-500">
+            {palette.colors.map((color) => (
+              <div
+                key={color.id}
+                className="h-full min-w-0 flex-1"
+                style={{ backgroundColor: color.hex ?? "transparent" }}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="flex h-[clamp(220px,58vh,420px)] w-[min(86vw,980px)] items-stretch justify-center animate-in fade-in zoom-in-95 duration-500">
+            {palette.colors.map((color, index) => (
+              <div
+                key={color.id}
+                className="relative min-w-0 flex-1 rounded-full shadow-sm"
+                style={{
+                  backgroundColor: color.hex ?? "transparent",
+                  marginLeft: index === 0 ? 0 : "-clamp(10px, 2vw, 28px)",
+                  zIndex: index + 1,
+                }}
+              />
+            ))}
+          </div>
+        )}
 
         <Button
           variant="ghost"
           size="icon"
           aria-label="Close fullscreen"
           onClick={closeFullscreen}
-          className="absolute right-4 top-4 z-10 rounded-full shadow-md animate-in fade-in zoom-in-75 duration-300 hover:opacity-90"
+          className="absolute right-4 top-4 z-50 rounded-full shadow-md animate-in fade-in zoom-in-75 duration-300 hover:opacity-90"
           style={{
             backgroundColor: closeButtonColor,
             color: closeButtonTextColor,
@@ -186,7 +222,8 @@ export function PaletteCard({
             hideExploreSimilar={hideExploreSimilar}
             showDelete={showDelete}
             onRemove={onRemove}
-            onOpenFullscreen={openFullscreen}
+            onOpenFullscreen={handleOpenFullscreen}
+            onOpenViewMode={handleOpenViewMode}
           />
         </div>
 

@@ -1,4 +1,5 @@
 import { converter, parse } from "culori";
+import { Palette } from "./types";
 
 export function formatRelativeTime(dateString: string) {
   const date = new Date(dateString);
@@ -52,4 +53,37 @@ function linearize(value: number) {
   return value <= 0.04045
     ? value / 12.92
     : Math.pow((value + 0.055) / 1.055, 2.4);
+}
+
+export function getShowcaseBackground(colors: Palette["colors"]) {
+  const validColors = colors
+    .map((color) => color.hex)
+    .filter((hex): hex is string => Boolean(hex))
+    .map((hex) => {
+      const normalized = hex.replace("#", "");
+
+      if (!/^[0-9a-fA-F]{6}$/.test(normalized)) return null;
+
+      return [
+        parseInt(normalized.slice(0, 2), 16),
+        parseInt(normalized.slice(2, 4), 16),
+        parseInt(normalized.slice(4, 6), 16),
+      ];
+    })
+    .filter((rgb): rgb is number[] => rgb !== null);
+
+  if (!validColors.length) return "#E8EAED";
+
+  const average = [0, 1, 2].map(
+    (channel) =>
+      validColors.reduce((sum, rgb) => sum + rgb[channel], 0) /
+      validColors.length,
+  );
+
+  // Blend the palette average with white for a soft background.
+  const blended = average.map((value) => Math.round(value * 0.42 + 255 * 0.58));
+
+  return `#${blended
+    .map((value) => value.toString(16).padStart(2, "0"))
+    .join("")}`;
 }
