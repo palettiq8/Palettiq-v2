@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { Palette as PaletteIcon } from "lucide-react";
 
+import { EmptyState } from "@/components/EmptyState";
+
 import { useNormalSavedPalettes } from "@/hooks/queries/usePaletteSaves";
 import { useFavoritePalettes } from "@/hooks/queries/usePaletteFavorites";
 import { useRecentNormalSavedPalettes } from "@/hooks/queries/usePaletteSaves";
@@ -86,13 +88,11 @@ export function AccountRecentPalettes() {
               Failed to load recent saves.
             </p>
           ) : recentSaves.length === 0 ? (
-            <div className="flex min-h-40 flex-col items-center justify-center gap-2 text-center">
-              <PaletteIcon className="size-8 text-muted-foreground" />
-              <p className="text-sm font-medium">No saved palettes yet</p>
-              <p className="text-xs text-muted-foreground">
-                Palettes you save recently will appear here.
-              </p>
-            </div>
+            <EmptyState
+              icon={PaletteIcon}
+              title="No saved palettes yet"
+              description="Palettes you save recently will appear here."
+            />
           ) : (
             <PaletteGrid
               palettes={recentSaves}
@@ -136,13 +136,11 @@ export function AccountRecentPalettes() {
               Failed to load recent favorites.
             </p>
           ) : recentFavorites.length === 0 ? (
-            <div className="flex min-h-40 flex-col items-center justify-center gap-2 text-center">
-              <PaletteIcon className="size-8 text-muted-foreground" />
-              <p className="text-sm font-medium">No favorite palettes yet</p>
-              <p className="text-xs text-muted-foreground">
-                Palettes you favorite recently will appear here.
-              </p>
-            </div>
+            <EmptyState
+              icon={PaletteIcon}
+              title="No favorite palettes yet"
+              description="Palettes you favorite recently will appear here."
+            />
           ) : (
             <PaletteGrid
               palettes={recentFavorites}

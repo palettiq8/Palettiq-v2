@@ -10,19 +10,12 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty";
+import { EmptyState } from "@/components/EmptyState";
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -283,21 +276,11 @@ export default function ProjectPage() {
       </div>
 
       {palettes.length === 0 ? (
-        <div className="grid w-full place-content-center">
-          <Empty className="border border-dashed">
-            <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <PaletteIcon />
-              </EmptyMedia>
-
-              <EmptyTitle>No palettes in this project yet</EmptyTitle>
-
-              <EmptyDescription>
-                Palettes you add to this project will appear here.
-              </EmptyDescription>
-            </EmptyHeader>
-          </Empty>
-        </div>
+        <EmptyState
+          icon={PaletteIcon}
+          title="No palettes in this project yet"
+          description="Palettes you add to this project will appear here."
+        />
       ) : (
         <>
           <PaletteGrid

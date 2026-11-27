@@ -1,13 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty";
+import { EmptyState } from "@/components/EmptyState";
 import { ArrowLeft, Palette as PaletteIcon } from "lucide-react";
 import { usePalettes } from "@/hooks/queries/usePalettes";
 import { useNormalSavedPalettes } from "@/hooks/queries/usePaletteSaves";
@@ -129,21 +123,11 @@ export default function PalettesExplorer() {
         ) : isSimilarError ? (
           <p className="text-destructive">Failed to load similar palettes.</p>
         ) : similarPalettes.length === 0 ? (
-          <div className="grid w-full place-content-center">
-            <Empty className="border border-dashed">
-              <EmptyHeader>
-                <EmptyMedia variant="icon">
-                  <PaletteIcon />
-                </EmptyMedia>
-
-                <EmptyTitle>No similar palettes found</EmptyTitle>
-
-                <EmptyDescription>
-                  Try exploring palettes with different filters.
-                </EmptyDescription>
-              </EmptyHeader>
-            </Empty>
-          </div>
+          <EmptyState
+            icon={PaletteIcon}
+            title="No similar palettes found"
+            description="Try exploring palettes with different filters."
+          />
         ) : (
           <PaletteGrid
             palettes={similarPalettes}
@@ -192,19 +176,12 @@ export default function PalettesExplorer() {
 
   if (palettes.length === 0) {
     return (
-      <div className="grid w-full place-content-center px-6 pb-6 pt-0">
-        <Empty className="border border-dashed">
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <PaletteIcon />
-            </EmptyMedia>
-            <EmptyTitle>No palettes found</EmptyTitle>
-            <EmptyDescription>
-              Adjust your search or filters to find palettes that match your
-              taste.
-            </EmptyDescription>
-          </EmptyHeader>
-        </Empty>
+      <div className="w-full px-6 pb-6 pt-0">
+        <EmptyState
+          icon={PaletteIcon}
+          title="No palettes found"
+          description="Adjust your search or filters to find palettes that match your taste."
+        />
       </div>
     );
   }

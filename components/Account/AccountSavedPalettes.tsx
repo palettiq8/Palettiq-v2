@@ -3,13 +3,7 @@
 import { useEffect, useState } from "react";
 import { Palette as PaletteIcon } from "lucide-react";
 
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty";
+import { EmptyState } from "@/components/EmptyState";
 
 import {
   useNormalSavedPalettes,
@@ -90,21 +84,11 @@ export function AccountSavedPalettes() {
 
   if (savedPalettes.length === 0) {
     return (
-      <div className="grid w-full place-content-center">
-        <Empty className="border border-dashed">
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <PaletteIcon />
-            </EmptyMedia>
-
-            <EmptyTitle>No saved palettes yet</EmptyTitle>
-
-            <EmptyDescription>
-              Palettes you save will appear here.
-            </EmptyDescription>
-          </EmptyHeader>
-        </Empty>
-      </div>
+      <EmptyState
+        icon={PaletteIcon}
+        title="No saved palettes yet"
+        description="Palettes you save will appear here."
+      />
     );
   }
 

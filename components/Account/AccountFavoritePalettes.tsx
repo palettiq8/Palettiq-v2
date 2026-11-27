@@ -3,13 +3,7 @@
 import { useEffect, useState } from "react";
 import { Palette as PaletteIcon } from "lucide-react";
 
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty";
+import { EmptyState } from "@/components/EmptyState";
 
 import { useNormalSavedPalettes } from "@/hooks/queries/usePaletteSaves";
 import {
@@ -93,21 +87,11 @@ export function AccountFavoritePalettes() {
 
   if (favoritePalettes.length === 0) {
     return (
-      <div className="grid w-full place-content-center">
-        <Empty className="border border-dashed">
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <PaletteIcon />
-            </EmptyMedia>
-
-            <EmptyTitle>No favorite palettes yet</EmptyTitle>
-
-            <EmptyDescription>
-              Palettes you mark as favorite will appear here.
-            </EmptyDescription>
-          </EmptyHeader>
-        </Empty>
-      </div>
+      <EmptyState
+        icon={PaletteIcon}
+        title="No favorite palettes yet"
+        description="Palettes you mark as favorite will appear here."
+      />
     );
   }
 

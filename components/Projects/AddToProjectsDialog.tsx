@@ -12,13 +12,7 @@ import CreateProjectDialog from "./CreateProjectDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty";
+import { EmptyState } from "@/components/EmptyState";
 import {
   Dialog,
   DialogClose,
@@ -159,7 +153,7 @@ export default function AddToProjectsDialog({
               </Button>
             </div>
 
-            <ScrollArea className="h-64">
+            <ScrollArea className="min-h-max max-h-64">
               <div className="min-h-32">
                 {isPending ? (
                   <div className="flex h-32 items-center justify-center">
@@ -170,23 +164,17 @@ export default function AddToProjectsDialog({
                     Failed to load projects!
                   </div>
                 ) : projects.length === 0 ? (
-                  <Empty className="border border-dashed">
-                    <EmptyHeader>
-                      <EmptyMedia variant="icon">
-                        <FolderOpen />
-                      </EmptyMedia>
-                      <EmptyTitle>
-                        {search.trim()
-                          ? "No projects found"
-                          : "No projects yet"}
-                      </EmptyTitle>
-                      <EmptyDescription>
-                        {search.trim()
-                          ? "Try searching with another name."
-                          : "Create a project to organize your palettes."}
-                      </EmptyDescription>
-                    </EmptyHeader>
-                  </Empty>
+                  <EmptyState
+                    icon={FolderOpen}
+                    title={
+                      search.trim() ? "No projects found" : "No projects yet"
+                    }
+                    description={
+                      search.trim()
+                        ? "Try searching with another name."
+                        : "Create a project to organize your palettes."
+                    }
+                  />
                 ) : (
                   <div className="space-y-1">
                     {projects.map((project) => {
