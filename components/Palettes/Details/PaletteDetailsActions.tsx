@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import type { Palette } from "@/lib/types";
 import { useNormalSavedPalettes } from "@/hooks/queries/usePaletteSaves";
@@ -9,6 +9,10 @@ import { usePaletteActions } from "@/hooks/usePaletteActions";
 import AddToProjectsDialog from "@/components/Projects/AddToProjectsDialog";
 
 import { PaletteCardActions } from "../PaletteCardActions";
+import {
+  PaletteFullscreenViewer,
+  type PaletteFullscreenViewerHandle,
+} from "../PaletteFullscreenViewer";
 import { PaletteActionsProvider } from "../PaletteActionsProvider";
 
 interface PaletteDetailsActionsProps {
@@ -32,6 +36,7 @@ export function PaletteDetailsActions({ palette }: PaletteDetailsActionsProps) {
   const [selectedPaletteId, setSelectedPaletteId] = useState<number | null>(
     null,
   );
+  const fullscreenViewerRef = useRef<PaletteFullscreenViewerHandle>(null);
 
   const openAddToProjects = async (paletteId: number) => {
     const authenticated = await handleAddToProjects(paletteId);
@@ -56,7 +61,13 @@ export function PaletteDetailsActions({ palette }: PaletteDetailsActionsProps) {
         onAddToProjects={openAddToProjects}
         hideViewDetails
         hideExploreSimilar
+        onOpenFullscreen={() =>
+          fullscreenViewerRef.current?.openFullscreen()
+        }
+        onOpenViewMode={() => fullscreenViewerRef.current?.openViewMode()}
       />
+
+      <PaletteFullscreenViewer ref={fullscreenViewerRef} palette={palette} />
 
       {selectedPaletteId !== null && (
         <AddToProjectsDialog

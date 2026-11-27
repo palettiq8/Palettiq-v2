@@ -1,27 +1,17 @@
 "use client";
 
-import { type CSSProperties, useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { toast } from "sonner";
-import { Copy, X } from "lucide-react";
+import { Copy } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import {
-  formatRelativeTime,
-  getContrastTextColor,
-  getShowcaseBackground,
-} from "@/lib/utils";
+import { formatRelativeTime, getContrastTextColor } from "@/lib/utils";
 import type { Palette } from "@/lib/types";
 import { PaletteCardActions } from "./PaletteCardActions";
+import {
+  PaletteFullscreenViewer,
+  type PaletteFullscreenViewerHandle,
+} from "./PaletteFullscreenViewer";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-
-const SHOWCASE_OFFSETS = [
-  { x: -60, y: -60 },
-  { x: 0, y: -70 },
-  { x: 60, y: -60 },
-  { x: -60, y: 60 },
-  { x: 0, y: 70 },
-  { x: 60, y: 60 },
-];
 
 interface PaletteCardProps {
   palette: Palette;
@@ -54,62 +44,7 @@ export function PaletteCard({
   showDelete = false,
   onRemove,
 }: PaletteCardProps) {
-  const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
-  const [fullscreenMode, setFullscreenMode] = useState<"standard" | "showcase">(
-    "standard",
-  );
-  const fullscreenRef = useRef<HTMLDivElement>(null);
-
-  async function openFullscreen(mode: "standard" | "showcase") {
-    const element = fullscreenRef.current;
-
-    if (!element) return;
-
-    element.hidden = false;
-    setFullscreenMode(mode);
-
-    try {
-      await element.requestFullscreen();
-      setIsFullscreenOpen(true);
-    } catch (error) {
-      element.hidden = true;
-      setIsFullscreenOpen(false);
-      console.error("Failed to open fullscreen:", error);
-      toast.error("Unable to open fullscreen");
-    }
-  }
-
-  const handleOpenFullscreen = () => openFullscreen("standard");
-  const handleOpenViewMode = () => openFullscreen("showcase");
-
-  function closeFullscreen() {
-    if (document.fullscreenElement === fullscreenRef.current) {
-      void document.exitFullscreen();
-    } else {
-      setIsFullscreenOpen(false);
-    }
-  }
-
-  useEffect(() => {
-    function handleFullscreenChange() {
-      const isFullscreen = document.fullscreenElement === fullscreenRef.current;
-
-      setIsFullscreenOpen(isFullscreen);
-
-      if (!isFullscreen && fullscreenRef.current) {
-        fullscreenRef.current.hidden = true;
-      }
-    }
-
-    document.addEventListener("fullscreenchange", handleFullscreenChange);
-
-    return () => {
-      document.removeEventListener("fullscreenchange", handleFullscreenChange);
-    };
-  }, []);
-
-  const closeButtonColor = palette.colors[0]?.hex ?? "#FFFFFF";
-  const closeButtonTextColor = getContrastTextColor(closeButtonColor);
+  const fullscreenViewerRef = useRef<PaletteFullscreenViewerHandle>(null);
 
   async function handleCopyColor(hex: string) {
     try {
@@ -122,79 +57,7 @@ export function PaletteCard({
 
   return (
     <article className="overflow-hidden rounded-xl border bg-card">
-      <div
-        ref={fullscreenRef}
-        hidden={!isFullscreenOpen}
-        className={`fixed inset-0 z-100 flex h-screen w-screen overflow-hidden ${
-          fullscreenMode === "showcase"
-            ? "items-center justify-center"
-            : "bg-background"
-        }`}
-      >
-        {fullscreenMode === "showcase" && (
-          <div
-            className={`absolute inset-0 ${
-              isFullscreenOpen
-                ? "animate-[showcase-bg-in_700ms_ease-out_both]"
-                : ""
-            }`}
-            style={{
-              backgroundColor: getShowcaseBackground(palette.colors),
-            }}
-          />
-        )}
-        {fullscreenMode === "standard" ? (
-          <div className="flex h-full w-full animate-in fade-in duration-500">
-            {palette.colors.map((color) => (
-              <div
-                key={color.id}
-                className="h-full min-w-0 flex-1"
-                style={{ backgroundColor: color.hex ?? "transparent" }}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="relative z-10 flex h-[clamp(220px,58vh,420px)] w-[min(86vw,900px)] items-stretch justify-center">
-            {palette.colors.map((color, index) => {
-              const offset = SHOWCASE_OFFSETS[index % SHOWCASE_OFFSETS.length];
-
-              return (
-                <div
-                  key={color.id}
-                  className={`relative min-w-0 flex-1 rounded-full shadow-sm ${
-                    index === 0 ? "" : "-ml-[clamp(16px,3vw,40px)]"
-                  }`}
-                  style={
-                    {
-                      backgroundColor: color.hex ?? "transparent",
-                      zIndex: index + 1,
-                      "--sc-x": `${offset.x}px`,
-                      "--sc-y": `${offset.y}px`,
-                      animation: isFullscreenOpen
-                        ? `showcase-color-in 700ms cubic-bezier(0.16,1,0.3,1) ${index * 90}ms both`
-                        : undefined,
-                    } as CSSProperties
-                  }
-                />
-              );
-            })}
-          </div>
-        )}
-
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label="Close fullscreen"
-          onClick={closeFullscreen}
-          className="absolute right-4 top-4 z-50 rounded-full shadow-md animate-in fade-in zoom-in-75 duration-300 hover:opacity-90"
-          style={{
-            backgroundColor: closeButtonColor,
-            color: closeButtonTextColor,
-          }}
-        >
-          <X />
-        </Button>
-      </div>
+      <PaletteFullscreenViewer ref={fullscreenViewerRef} palette={palette} />
       <div className="flex h-40">
         {palette.colors.map((color) => (
           <button
@@ -248,8 +111,8 @@ export function PaletteCard({
             hideExploreSimilar={hideExploreSimilar}
             showDelete={showDelete}
             onRemove={onRemove}
-            onOpenFullscreen={handleOpenFullscreen}
-            onOpenViewMode={handleOpenViewMode}
+            onOpenFullscreen={() => fullscreenViewerRef.current?.openFullscreen()}
+            onOpenViewMode={() => fullscreenViewerRef.current?.openViewMode()}
           />
         </div>
 
