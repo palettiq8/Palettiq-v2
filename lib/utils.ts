@@ -49,6 +49,12 @@ export function getContrastTextColor(hex: string) {
   return luminance > 0.179 ? "#111111" : "#FFFFFF";
 }
 
+export function capitalizeFirst(value: string) {
+  if (!value) return value;
+
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
 function linearize(value: number) {
   return value <= 0.04045
     ? value / 12.92

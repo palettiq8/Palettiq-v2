@@ -71,6 +71,7 @@ export function SimilarPalettes({ palettes }: SimilarPalettesProps) {
         onToggleSave={handleToggleNormalSave}
         onDownload={handleDownloadPalette}
         onAddToProjects={openAddToProjects}
+        hideExploreSimilar
       />
 
       <div className="flex justify-center pt-2">

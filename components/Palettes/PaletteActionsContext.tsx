@@ -8,8 +8,7 @@ export type PaletteAction =
   | "details"
   | "fullscreen"
   | "view-mode"
-  | "visualize"
-  | "similar";
+  | "visualize";
 
 interface PaletteActionsContextValue {
   palettes: Palette[];

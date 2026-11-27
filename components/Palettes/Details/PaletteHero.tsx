@@ -10,7 +10,7 @@ import { PaletteAdjustmentEditor } from "./PaletteAdjustmentEditor";
 import { usePaletteAdjustments } from "@/hooks/usePaletteAdjustments";
 import { Copy } from "lucide-react";
 import { toast } from "sonner";
-import { getContrastTextColor } from "@/lib/utils";
+import { capitalizeFirst, getContrastTextColor } from "@/lib/utils";
 
 interface PaletteHeroProps {
   palette: PaletteDetails;
@@ -32,7 +32,7 @@ export function PaletteHero({ palette }: PaletteHeroProps) {
 
   const bestForItems = identity?.best_for
     ?.split(",")
-    .map((item) => item.trim())
+    .map((item) => capitalizeFirst(item.trim()))
     .filter(Boolean);
 
   return (

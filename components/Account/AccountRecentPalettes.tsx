@@ -90,7 +90,7 @@ export function AccountRecentPalettes() {
               <PaletteIcon className="size-8 text-muted-foreground" />
               <p className="text-sm font-medium">No saved palettes yet</p>
               <p className="text-xs text-muted-foreground">
-                Palettes you save will appear here.
+                Palettes you save recently will appear here.
               </p>
             </div>
           ) : (
@@ -140,7 +140,7 @@ export function AccountRecentPalettes() {
               <PaletteIcon className="size-8 text-muted-foreground" />
               <p className="text-sm font-medium">No favorite palettes yet</p>
               <p className="text-xs text-muted-foreground">
-                Palettes you favorite will appear here.
+                Palettes you favorite recently will appear here.
               </p>
             </div>
           ) : (

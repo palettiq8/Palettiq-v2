@@ -27,6 +27,7 @@ import TEMPERATURES from "@/lib/filters/temperatures";
 import THEMES from "@/lib/filters/themes";
 import TONES from "@/lib/filters/tones";
 import USE_CASES from "@/lib/filters/use_cases";
+import type { Palette } from "@/lib/types";
 
 export const PALETTE_FILTER_GROUPS = [
   {
@@ -138,6 +139,9 @@ interface PalettesExploreState {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
 
+  similarPalette: Palette | null;
+  setSimilarPalette: (palette: Palette | null) => void;
+
   toggleAndApplyFilter: (key: PaletteFilterKey, value: string) => void;
 
   setExploreStateFromUrl: (state: {
@@ -169,11 +173,13 @@ export const usePalettesExploreStore = create<PalettesExploreState>(
     applyFilters: () =>
       set((state) => ({
         appliedFilters: cloneFilters(state.filters),
+        similarPalette: null,
       })),
 
     clearFilters: () =>
       set({
         filters: createEmptyPaletteFilters(),
+        similarPalette: null,
       }),
 
     getActiveFilterCount: () =>
@@ -183,9 +189,13 @@ export const usePalettesExploreStore = create<PalettesExploreState>(
       ),
 
     sortBy: "all",
-    setSortBy: (sortBy) => set({ sortBy }),
+    setSortBy: (sortBy) => set({ sortBy, similarPalette: null }),
     searchQuery: "",
-    setSearchQuery: (searchQuery) => set({ searchQuery }),
+    setSearchQuery: (searchQuery) =>
+      set({ searchQuery, similarPalette: null }),
+
+    similarPalette: null,
+    setSimilarPalette: (palette) => set({ similarPalette: palette }),
 
     toggleAndApplyFilter: (key, value) =>
       set((state) => {
@@ -201,6 +211,7 @@ export const usePalettesExploreStore = create<PalettesExploreState>(
         return {
           filters: cloneFilters(nextFilters),
           appliedFilters: cloneFilters(nextFilters),
+          similarPalette: null,
         };
       }),
 

@@ -1,0 +1,1 @@
+- Rejects UI that feels "AI-generated"/template-y and asks for premium, professional treatment: avoid card-stacking grids, numbered "01/02" tiles, pill badges, and muted rounded boxes; prefer restrained bordered spec-lists, thin left rules, and editorial typography. Confidence: 0.7

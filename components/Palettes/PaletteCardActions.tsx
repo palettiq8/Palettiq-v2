@@ -37,6 +37,7 @@ import type { Palette } from "@/lib/types";
 import { copyPalette, type PaletteCopyFormat } from "@/lib/utils/copy-palette";
 
 import { usePaletteActionsContext } from "./PaletteActionsContext";
+import { usePalettesExploreStore } from "@/store/usePalettesExploreStore";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -100,6 +101,9 @@ export function PaletteCardActions({
     }
   };
   const { openPaletteAction } = usePaletteActionsContext();
+  const setSimilarPalette = usePalettesExploreStore(
+    (state) => state.setSimilarPalette,
+  );
 
   const handleCopy = async (format: PaletteCopyFormat = "json") => {
     try {
@@ -299,7 +303,9 @@ export function PaletteCardActions({
               Visualize palette
             </DropdownMenuItem>
             {!hideExploreSimilar && (
-              <DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setSimilarPalette(palette)}
+              >
                 <TextSearch />
                 Explore similar
               </DropdownMenuItem>

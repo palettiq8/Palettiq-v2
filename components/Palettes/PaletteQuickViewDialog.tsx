@@ -1,14 +1,18 @@
 "use client";
 
 import { useMemo } from "react";
+import Link from "next/link";
 import {
   Bookmark,
+  Check,
+  Copy,
   DownloadIcon,
   FileCode,
   FileImage,
   Star,
 } from "lucide-react";
 import { toast } from "sonner";
+import { capitalizeFirst, getContrastTextColor } from "@/lib/utils";
 
 import {
   Dialog,
@@ -60,6 +64,15 @@ export function PaletteQuickViewDialog({
     favoritingPaletteId,
   } = usePaletteActions(normalSavedPaletteIds, favoritePaletteIds);
 
+  async function handleCopyColor(hex: string) {
+    try {
+      await navigator.clipboard.writeText(hex.toUpperCase());
+      toast.success(`${hex.toUpperCase()} copied`);
+    } catch {
+      toast.error("Failed to copy color");
+    }
+  }
+
   if (!open || !palette) return null;
 
   const isSaved = normalSavedPaletteIds.includes(paletteId);
@@ -72,21 +85,40 @@ export function PaletteQuickViewDialog({
   const bestForItems =
     palette.identity?.best_for
       ?.split(/[,;\n]/)
-      .map((item) => item.trim())
+      .map((item) => capitalizeFirst(item.trim()))
       .filter(Boolean) ?? [];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="flex h-[90vh] max-h-225 flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl">
         {/* Palette Preview */}
-        <div className="flex h-56 w-full shrink-0 overflow-hidden sm:h-64">
+        <div className="flex h-34 w-full shrink-0 overflow-hidden sm:h-40">
           {colors.map((color) => (
-            <div
+            <button
               key={color.id}
-              className="min-w-0 flex-1"
+              type="button"
+              disabled={!color.hex}
+              onClick={() => color.hex && handleCopyColor(color.hex)}
+              className="group relative min-w-0 flex-1 disabled:cursor-default focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
               style={{ backgroundColor: color.hex ?? "transparent" }}
-              title={color.hex ?? undefined}
-            />
+              title={
+                color.hex ? `Copy ${color.hex.toUpperCase()}` : "Unknown color"
+              }
+              aria-label={
+                color.hex
+                  ? `Copy color ${color.hex.toUpperCase()}`
+                  : "Unknown color"
+              }
+            >
+              {color.hex && (
+                <span className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100">
+                  <Copy
+                    className="size-4 drop-shadow-sm"
+                    style={{ color: getContrastTextColor(color.hex) }}
+                  />
+                </span>
+              )}
+            </button>
           ))}
         </div>
 
@@ -200,122 +232,98 @@ export function PaletteQuickViewDialog({
             )}
 
             {/* Colors */}
-            <section className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <h3 className="text-base font-semibold tracking-tight">
-                    Color breakdown
-                  </h3>
-                  <p className="text-xs text-muted-foreground">
-                    Explore every color in this palette
-                  </p>
-                </div>
+            <section className="space-y-3">
+              <div className="flex items-baseline justify-between gap-2">
+                <h3 className="text-base font-semibold tracking-tight">
+                  Colors
+                </h3>
 
-                <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+                <span className="text-xs text-muted-foreground">
                   {colors.length} colors
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <ul className="divide-y divide-border/70 overflow-hidden rounded-xl border border-border/70">
                 {colors.map((color) => (
-                  <div
+                  <li
                     key={color.id}
-                    className="group overflow-hidden rounded-xl border bg-card transition-colors hover:bg-muted/30"
+                    className="flex items-center gap-3 px-4 py-3"
                   >
-                    <div
-                      className="h-24 w-full"
+                    <span
+                      className="size-9 shrink-0 rounded-md ring-1 ring-inset ring-black/10"
                       style={{
                         backgroundColor: color.hex ?? "transparent",
                       }}
                     />
 
-                    <div className="space-y-2 p-3">
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="truncate text-sm font-semibold">
-                          {color.name || "Unnamed color"}
-                        </p>
-
-                        {color.role && (
-                          <span className="shrink-0 rounded-md bg-muted px-2 py-1 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-                            {color.role}
-                          </span>
-                        )}
-                      </div>
-
-                      <p className="font-mono text-xs tracking-wide text-muted-foreground">
-                        {color.hex ?? "No HEX value"}
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">
+                        {color.name || "Unnamed color"}
                       </p>
+
+                      {color.role && (
+                        <p className="truncate text-xs capitalize text-muted-foreground">
+                          {color.role}
+                        </p>
+                      )}
                     </div>
-                  </div>
+
+                    <span className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground">
+                      {color.hex ?? "—"}
+                    </span>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </section>
 
             {/* Best For */}
             {bestForItems.length > 0 && (
-              <section className="space-y-4">
-                <div className="space-y-1">
-                  <h3 className="text-base font-semibold tracking-tight">
-                    Best for
-                  </h3>
-                  <p className="text-xs text-muted-foreground">
-                    Ideal applications for this color palette
-                  </p>
-                </div>
+              <section className="space-y-3">
+                <h3 className="text-base font-semibold tracking-tight">
+                  Best for
+                </h3>
 
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <ul className="grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2">
                   {bestForItems.map((item, index) => (
-                    <div
+                    <li
                       key={`${item}-${index}`}
-                      className="flex items-center gap-3 rounded-xl border bg-card p-3 transition-colors hover:bg-muted/40"
+                      className="flex items-start gap-2.5 text-sm leading-relaxed"
                     >
-                      <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                        <span className="text-sm font-semibold">
-                          {String(index + 1).padStart(2, "0")}
-                        </span>
-                      </div>
+                      <Check className="mt-0.5 size-4 shrink-0 text-foreground/50" />
 
-                      <p className="text-sm font-medium leading-relaxed">
-                        {item}
-                      </p>
-                    </div>
+                      <span>{item}</span>
+                    </li>
                   ))}
-                </div>
+                </ul>
               </section>
             )}
 
             {/* Inspiration Sources */}
             {palette.inspiration_sources && (
               <section className="space-y-3">
-                <div className="space-y-1">
-                  <h3 className="text-base font-semibold tracking-tight">
-                    Inspiration sources
-                  </h3>
-                  <p className="text-xs text-muted-foreground">
-                    The inspiration behind this palette
-                  </p>
-                </div>
+                <h3 className="text-base font-semibold tracking-tight">
+                  Inspiration sources
+                </h3>
 
-                <div className="rounded-xl border bg-muted/30 p-4">
-                  <p className="text-sm leading-7 text-muted-foreground">
-                    {palette.inspiration_sources}
-                  </p>
-                </div>
+                <p className="border-l-2 border-border pl-4 text-sm leading-7 text-muted-foreground">
+                  {palette.inspiration_sources}
+                </p>
               </section>
             )}
 
             {/* View Details */}
-            <div className="pb-2">
-              <Button
-                className="w-full"
-                size="lg"
-                onClick={() =>
-                  toast.info("Palette details page is coming soon.")
-                }
-              >
-                View more details
-              </Button>
-            </div>
+            <Button
+              className="w-full"
+              size="lg"
+              nativeButton={false}
+              render={
+                <Link
+                  href={`/palettes/${palette.id}-${palette.identity?.slug}`}
+                />
+              }
+            >
+              View more details
+            </Button>
           </div>
         </ScrollArea>
       </DialogContent>

@@ -1,3 +1,7 @@
 - Expects minimal, surgical changes: keep the existing layout/structure and styling intact and alter only the specific detail that was asked for, rather than reinterpreting the request into a broader redesign. Confidence: 0.75
-- When asked to review or inspect, wants the assistant to stay scoped to the specific file/component named ("just look at PaletteCard"), not sweep the whole repo. Confidence: 0.55
+- When asked to review or inspect, wants the assistant to stay scoped to the specific file/component named ("just look at PaletteCard"), not sweep the whole repo. Confidence: 0.7
+- Prefers in-place/inline UI over new overlays: when content relates to a section (e.g. similar palettes on Explore), render it within that existing section/grid instead of opening a separate dialog or new component. Confidence: 0.65
+- Prefers terse UI copy: under a heading show only the concrete entity itself, with no explanatory/descriptive filler sentence beneath it. Confidence: 0.65
+- For palettes as the "concrete entity", wants the visual representation (small horizontal color strip showing the colors in position order) rather than a text label/name. Confidence: 0.7
+- When adding an interaction/feature that already exists elsewhere in the app, expects the new code to mirror the existing implementation (points to the reference file, e.g. "visit PaletteCard.tsx to see how copy is done") so behavior and UX stay consistent, rather than inventing a new approach. Confidence: 0.7
 - For visual/spacing tweaks, prefers small incremental steps (e.g. "a bit less") over large jumps or reverting to a previously rejected value; when told "not like before", adjust mildly from the current value. Confidence: 0.6
