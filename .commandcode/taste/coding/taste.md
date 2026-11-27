@@ -1,0 +1,3 @@
+- Expects minimal, surgical changes: keep the existing layout/structure and styling intact and alter only the specific detail that was asked for, rather than reinterpreting the request into a broader redesign. Confidence: 0.75
+- When asked to review or inspect, wants the assistant to stay scoped to the specific file/component named ("just look at PaletteCard"), not sweep the whole repo. Confidence: 0.55
+- For visual/spacing tweaks, prefers small incremental steps (e.g. "a bit less") over large jumps or reverting to a previously rejected value; when told "not like before", adjust mildly from the current value. Confidence: 0.6

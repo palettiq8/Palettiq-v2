@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { type CSSProperties, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Copy, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,15 @@ import type { Palette } from "@/lib/types";
 import { PaletteCardActions } from "./PaletteCardActions";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+
+const SHOWCASE_OFFSETS = [
+  { x: -60, y: -60 },
+  { x: 0, y: -70 },
+  { x: 60, y: -60 },
+  { x: -60, y: 60 },
+  { x: 0, y: 70 },
+  { x: 60, y: 60 },
+];
 
 interface PaletteCardProps {
   palette: Palette;
@@ -116,19 +125,24 @@ export function PaletteCard({
       <div
         ref={fullscreenRef}
         hidden={!isFullscreenOpen}
-        className={`fixed inset-0 z-100 flex h-screen w-screen ${
+        className={`fixed inset-0 z-100 flex h-screen w-screen overflow-hidden ${
           fullscreenMode === "showcase"
             ? "items-center justify-center"
             : "bg-background"
-        } ${
-          isFullscreenOpen ? "animate-in fade-in zoom-in-95 duration-300" : ""
         }`}
-        style={
-          fullscreenMode === "showcase"
-            ? { backgroundColor: getShowcaseBackground(palette.colors) }
-            : undefined
-        }
       >
+        {fullscreenMode === "showcase" && (
+          <div
+            className={`absolute inset-0 ${
+              isFullscreenOpen
+                ? "animate-[showcase-bg-in_700ms_ease-out_both]"
+                : ""
+            }`}
+            style={{
+              backgroundColor: getShowcaseBackground(palette.colors),
+            }}
+          />
+        )}
         {fullscreenMode === "standard" ? (
           <div className="flex h-full w-full animate-in fade-in duration-500">
             {palette.colors.map((color) => (
@@ -140,18 +154,30 @@ export function PaletteCard({
             ))}
           </div>
         ) : (
-          <div className="flex h-[clamp(220px,58vh,420px)] w-[min(86vw,980px)] items-stretch justify-center animate-in fade-in zoom-in-95 duration-500">
-            {palette.colors.map((color, index) => (
-              <div
-                key={color.id}
-                className="relative min-w-0 flex-1 rounded-full shadow-sm"
-                style={{
-                  backgroundColor: color.hex ?? "transparent",
-                  marginLeft: index === 0 ? 0 : "-clamp(10px, 2vw, 28px)",
-                  zIndex: index + 1,
-                }}
-              />
-            ))}
+          <div className="relative z-10 flex h-[clamp(220px,58vh,420px)] w-[min(86vw,900px)] items-stretch justify-center">
+            {palette.colors.map((color, index) => {
+              const offset = SHOWCASE_OFFSETS[index % SHOWCASE_OFFSETS.length];
+
+              return (
+                <div
+                  key={color.id}
+                  className={`relative min-w-0 flex-1 rounded-full shadow-sm ${
+                    index === 0 ? "" : "-ml-[clamp(16px,3vw,40px)]"
+                  }`}
+                  style={
+                    {
+                      backgroundColor: color.hex ?? "transparent",
+                      zIndex: index + 1,
+                      "--sc-x": `${offset.x}px`,
+                      "--sc-y": `${offset.y}px`,
+                      animation: isFullscreenOpen
+                        ? `showcase-color-in 700ms cubic-bezier(0.16,1,0.3,1) ${index * 90}ms both`
+                        : undefined,
+                    } as CSSProperties
+                  }
+                />
+              );
+            })}
           </div>
         )}
 

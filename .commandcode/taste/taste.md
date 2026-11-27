@@ -1,0 +1,1 @@
+- Do not explore build artifacts, dependency folders, or generated files when searching the codebase (e.g. `.next`, `node_modules`, `package-lock.json`, `tsconfig.tsbuildinfo`). Confidence: 0.75
