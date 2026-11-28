@@ -22,7 +22,7 @@ export default function PalettesExplorer() {
   const { page, debouncedSearch, appliedFilters, sortBy, handlePageChange } =
     usePaletteExploreUrl();
 
-  const { data, isPending, isError, error } = usePalettes({
+  const { data, isPending, isError } = usePalettes({
     filters: appliedFilters,
     sortBy,
     search: debouncedSearch,
@@ -82,7 +82,7 @@ export default function PalettesExplorer() {
 
   if (similarPalette !== null) {
     return (
-      <div className="w-full px-6 pb-6 pt-0">
+      <div className="w-full p-4 pt-0">
         <div className="mb-4 flex items-start justify-between gap-4">
           <div className="min-w-0 flex items-center gap-3">
             <h2 className="text-base font-medium tracking-tight">
@@ -158,17 +158,19 @@ export default function PalettesExplorer() {
 
   if (isPending) {
     return (
-      <div className="grid min-h-[calc(100vh-4rem)] w-full content-start grid-cols-1 gap-2 px-6 pb-6 pt-0 sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 12 }).map((_, index) => <PaletteSkeleton key={index} />)}
+      <div className="grid min-h-[calc(100dvh_-_3.5rem)] w-full content-start grid-cols-1 gap-2 p-4 pt-0 sm:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: 12 }).map((_, index) => (
+          <PaletteSkeleton key={index} />
+        ))}
       </div>
     );
   }
 
   if (isError && !data) {
     return (
-      <div className="w-full px-6 pb-6 pt-0">
+      <div className="w-full p-4 pt-0">
         <p className="text-destructive">
-          Failed to load palettes: {error.message}
+          Failed to load palettes:
         </p>
       </div>
     );
@@ -176,7 +178,7 @@ export default function PalettesExplorer() {
 
   if (palettes.length === 0) {
     return (
-      <div className="w-full px-6 pb-6 pt-0">
+      <div className="w-full p-4 pt-0">
         <EmptyState
           icon={PaletteIcon}
           title="No palettes found"
@@ -187,7 +189,7 @@ export default function PalettesExplorer() {
   }
 
   return (
-    <div className="w-full px-6 pb-6 pt-0">
+    <div className="w-full p-4 pt-0">
       <PaletteGrid
         palettes={palettes}
         favoritePaletteIds={favoritePaletteIds}

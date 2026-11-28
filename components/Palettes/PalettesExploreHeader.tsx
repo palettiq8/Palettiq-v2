@@ -35,7 +35,7 @@ export default function PalettesExploreHeader() {
   const current = SORT_OPTIONS.find((option) => option.value === sortBy);
 
   return (
-    <div className="w-full flex items-center justify-between gap-4 px-6 py-4">
+    <div className="w-full flex items-center justify-between gap-4 p-4">
       <HorizontalWheel>
         {COLOR_FAMILIES.map((family) => {
           const isActive = appliedFilters.color_families.includes(family.name);

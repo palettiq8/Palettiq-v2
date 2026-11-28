@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { Palette } from "@/lib/types";
 import { copyPalette, type PaletteCopyFormat } from "@/lib/utils/copy-palette";
+import { getPaletteVisualizeHref } from "@/lib/utils/palette-route";
 
 import { usePaletteActionsContext } from "./PaletteActionsContext";
 import { usePalettesExploreStore } from "@/store/usePalettesExploreStore";
@@ -298,7 +299,16 @@ export function PaletteCardActions({
               <Columns3 />
               View mode
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem
+              render={
+                <Link
+                  href={getPaletteVisualizeHref(
+                    palette.id,
+                    palette.identity?.slug ?? "",
+                  )}
+                />
+              }
+            >
               <ActivityIcon />
               Visualize palette
             </DropdownMenuItem>

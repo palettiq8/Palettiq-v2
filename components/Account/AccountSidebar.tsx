@@ -74,7 +74,7 @@ export function AccountSidebar({ userId }: AccountSidebarProps) {
   };
 
   const Navigation = ({ onNavigate, onCreateProject }: NavigationProps) => (
-    <nav className="space-y-7 px-3 py-5">
+    <nav className="space-y-7 p-4">
       <div className="space-y-2">
         <p className="px-3 text-xs font-medium text-muted-foreground">
           LIBRARY

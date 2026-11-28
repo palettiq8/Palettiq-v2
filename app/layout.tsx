@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import QueryProvider from "@/components/providers/QueryProvider";
 import { Toaster } from "@/components/ui/sonner";
 import Header from "@/components/Home/Header";
+import { HideOnVisualizer } from "@/components/HideOnVisualizer";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -81,7 +83,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             enableSystem
             disableTransitionOnChange
           >
-            <Header />
+            <Suspense fallback={<Header />}>
+              <HideOnVisualizer>
+                <Header />
+              </HideOnVisualizer>
+            </Suspense>
             {children}
             <Toaster position="bottom-right" closeButton />
           </ThemeProvider>

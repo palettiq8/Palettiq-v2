@@ -21,7 +21,7 @@ export default function AccountLayout({
   return (
     <Suspense
       fallback={
-        <div className="flex h-[calc(100dvh-4rem)] min-h-0 w-full overflow-hidden">
+        <div className="fixed inset-x-0 bottom-0 top-14 flex min-h-0 overflow-hidden">
           <aside className="hidden h-full w-64 shrink-0 border-r bg-background md:block" />
           <main className="h-full min-w-0 flex-1 bg-background" />
         </div>
@@ -52,7 +52,7 @@ async function AccountLayoutContent({ children, params }: AccountLayoutProps) {
   }
 
   return (
-    <div className="flex h-[calc(100dvh-4rem)] min-h-0 w-full overflow-hidden">
+    <div className="fixed inset-x-0 bottom-0 top-14 flex min-h-0 overflow-hidden">
       <Suspense
         fallback={
           <aside className="hidden h-full w-64 shrink-0 border-r bg-background md:block" />

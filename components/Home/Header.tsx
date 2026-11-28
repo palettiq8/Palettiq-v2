@@ -33,7 +33,7 @@ export default function Header() {
 
   return (
     <Suspense fallback={null}>
-      <header className="sticky top-0 z-50 flex h-16 w-full shrink-0 items-center justify-between border-b bg-background/80 px-6 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 flex h-14 w-full shrink-0 items-center justify-between border-b bg-background/80 px-4 backdrop-blur-xl">
         <div className="flex items-center gap-2">
           <Link href={"/"}>
             <Image
