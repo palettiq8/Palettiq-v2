@@ -2,6 +2,7 @@
 
 import { Suspense } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import {
   LogOutIcon,
   BookmarkIcon,
@@ -30,6 +31,7 @@ import { HeaderSearch, HeaderFilters } from "./HeaderNavigation";
 
 export default function Header() {
   const { user, isAuthenticated, isLoading, signOut } = useAuth();
+  const router = useRouter();
 
   return (
     <Suspense fallback={null}>
@@ -98,9 +100,16 @@ export default function Header() {
                 <DropdownMenuItem
                   variant="destructive"
                   onClick={() => {
-                    void signOut().catch(() => {
-                      toast.error("Failed to sign out. Please try again.");
-                    });
+                    void signOut()
+                      .then(() => {
+                        // Leave the authenticated area; the account layout is
+                        // server-rendered, so navigating away is required.
+                        router.push("/");
+                        router.refresh();
+                      })
+                      .catch(() => {
+                        toast.error("Failed to sign out. Please try again.");
+                      });
                   }}
                 >
                   <LogOutIcon />
@@ -116,9 +125,6 @@ export default function Header() {
           <div className="flex items-center gap-0">
             <Link href={"/"}>
               <Button variant={"ghost"}>Palettes</Button>
-            </Link>
-            <Link href={"/"}>
-              <Button variant={"ghost"}>Visualizer</Button>
             </Link>
           </div>
           <div className="flex items-center gap-2">

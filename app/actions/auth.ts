@@ -14,7 +14,7 @@ export async function sendMagicLink(email: string): Promise<MagicLinkResult> {
     };
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "");
 
   if (!siteUrl) {
     return {
