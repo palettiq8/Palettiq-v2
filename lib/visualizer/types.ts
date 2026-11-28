@@ -40,7 +40,7 @@ export type RoleMappingSource = "auto" | "manual";
 
 export type RoleSources = Record<ColorRole, RoleMappingSource>;
 
-export type TemplateType = "website";
+export type TemplateType = "website" | "dashboard" | "ecommerce" | "mobile";
 
 export type ThemeMode = "light" | "dark";
 

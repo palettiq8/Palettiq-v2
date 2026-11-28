@@ -18,9 +18,9 @@ interface TemplateOption {
  */
 const OPTIONS: TemplateOption[] = [
   { id: "website", label: "Website", available: true, type: "website" },
-  { id: "dashboard", label: "Dashboard", available: false },
-  { id: "ecommerce", label: "E-commerce", available: false },
-  { id: "mobile", label: "Mobile app", available: false },
+  { id: "dashboard", label: "Dashboard", available: true, type: "dashboard" },
+  { id: "ecommerce", label: "E-commerce", available: true, type: "ecommerce" },
+  { id: "mobile", label: "Mobile app", available: true, type: "mobile" },
 ];
 
 interface TemplateSelectorProps {

@@ -97,7 +97,9 @@ export function VisualizerSidebar({
             Custom overrides apply to both Light and Dark themes.
           </p>
 
-          <ViewportSelector value={viewport} onChange={onViewportChange} />
+          {template !== "mobile" && (
+            <ViewportSelector value={viewport} onChange={onViewportChange} />
+          )}
         </div>
       </ScrollArea>
     </aside>

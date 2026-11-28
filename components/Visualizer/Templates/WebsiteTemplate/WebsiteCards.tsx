@@ -1,156 +1,194 @@
-import { Check } from "lucide-react";
-
-interface PlanCard {
-  label: string;
+interface ResultCard {
+  tag: string;
+  metric: string;
   title: string;
   description: string;
-  points: string[];
-  featured: boolean;
+  visual: "bars" | "segments" | "rings";
 }
 
-const PLANS: PlanCard[] = [
+const CARDS: ResultCard[] = [
   {
-    label: "Starter",
-    title: "For individuals",
-    description: "Explore palettes and preview them in a live interface.",
-    points: ["1 project", "Community palettes", "Light & dark preview"],
-    featured: false,
+    tag: "Brand refresh",
+    metric: "+38%",
+    title: "Activation after a brand pass",
+    description:
+      "A cohesive palette lifted sign-up completion within the first month.",
+    visual: "bars",
   },
   {
-    label: "Pro",
-    title: "For product teams",
-    description: "Build shared design systems and preview every direction.",
-    points: ["Unlimited projects", "Shared tokens", "Diagnostics preview"],
-    featured: true,
+    tag: "Design system",
+    metric: "2.4×",
+    title: "Faster feature delivery",
+    description:
+      "Shared tokens removed guesswork and repeated design decisions.",
+    visual: "segments",
   },
   {
-    label: "Studio",
-    title: "For agencies",
-    description: "Deliver consistent brand systems across every client.",
-    points: ["Team workspaces", "Custom templates", "Priority support"],
-    featured: false,
+    tag: "Accessibility",
+    metric: "100%",
+    title: "Text pairs passing AA",
+    description:
+      "Every surface is contrast-checked automatically before release.",
+    visual: "rings",
   },
 ];
+
+const BAR_HEIGHTS = [42, 58, 36, 72, 64, 88, 76];
+
+function ResultVisual({ visual }: { visual: ResultCard["visual"] }) {
+  if (visual === "bars") {
+    return (
+      <div className="flex h-20 items-end gap-1.5">
+        {BAR_HEIGHTS.map((height, index) => (
+          <span
+            key={index}
+            className="flex-1 rounded-t-sm"
+            style={{
+              height: `${height}%`,
+              backgroundColor:
+                height > 60 ? "var(--viz-primary)" : "var(--viz-border)",
+            }}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  if (visual === "segments") {
+    return (
+      <div className="space-y-3">
+        <div className="flex h-16 overflow-hidden rounded-lg">
+          <span className="w-1/2" style={{ backgroundColor: "var(--viz-primary)" }} />
+          <span className="w-1/4" style={{ backgroundColor: "var(--viz-secondary)" }} />
+          <span className="w-1/6" style={{ backgroundColor: "var(--viz-accent)" }} />
+          <span className="w-1/12" style={{ backgroundColor: "var(--viz-border)" }} />
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          {[
+            "var(--viz-primary)",
+            "var(--viz-secondary)",
+            "var(--viz-accent)",
+            "var(--viz-border)",
+          ].map((color) => (
+            <span
+              key={color}
+              className="size-2.5 rounded-full"
+              style={{ backgroundColor: color }}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-20 items-center justify-center">
+      <div
+        className="flex size-20 items-center justify-center rounded-full border-8"
+        style={{ borderColor: "var(--viz-primary)" }}
+      >
+        <div
+          className="flex size-11 items-center justify-center rounded-full border-4"
+          style={{ borderColor: "var(--viz-accent)" }}
+        >
+          <div
+            className="size-4 rounded-full"
+            style={{ backgroundColor: "var(--viz-secondary)" }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function WebsiteCards() {
   return (
     <section
-      className="px-6 py-14 @lg:px-10"
-      style={{ backgroundColor: "var(--viz-background)" }}
+      className="px-6 py-16 @lg:px-10"
+      style={{ backgroundColor: "var(--viz-surface)" }}
     >
-      <div className="mx-auto max-w-5xl space-y-8">
-        <div className="flex flex-col gap-2">
-          <h2
-            className="text-2xl font-bold tracking-tight @lg:text-3xl"
-            style={{ color: "var(--viz-text)" }}
-          >
-            Simple, transparent plans
-          </h2>
+      <div className="mx-auto max-w-6xl space-y-10">
+        <div className="flex flex-col gap-3 @lg:flex-row @lg:items-end @lg:justify-between">
+          <div className="max-w-xl space-y-2">
+            <p
+              className="text-xs font-semibold"
+              style={{ color: "var(--viz-primary)" }}
+            >
+              Proven results
+            </p>
+
+            <h2
+              className="text-2xl font-bold tracking-tight @lg:text-4xl"
+              style={{ color: "var(--viz-text)" }}
+            >
+              From palette to shipped product
+            </h2>
+          </div>
 
           <p
-            className="text-sm leading-relaxed"
+            className="max-w-sm text-sm leading-relaxed"
             style={{ color: "var(--viz-muted)" }}
           >
-            Choose the plan that fits how your team works.
+            Real teams, real outcomes — measured after adopting a shared color
+            system.
           </p>
         </div>
 
         <div className="grid gap-4 @md:grid-cols-3">
-          {PLANS.map((plan) => {
-            const titleColor = plan.featured
-              ? "var(--viz-on-primary)"
-              : "var(--viz-text)";
-            const bodyColor = plan.featured
-              ? "var(--viz-on-primary)"
-              : "var(--viz-muted)";
+          {CARDS.map((card) => (
+            <div
+              key={card.title}
+              className="flex flex-col overflow-hidden rounded-2xl border"
+              style={{
+                backgroundColor: "var(--viz-background)",
+                borderColor: "var(--viz-border)",
+              }}
+            >
+              <div className="space-y-2 p-5">
+                <span
+                  className="inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium"
+                  style={{
+                    backgroundColor: "var(--viz-accent)",
+                    color: "var(--viz-on-accent)",
+                  }}
+                >
+                  {card.tag}
+                </span>
 
-            return (
-              <div
-                key={plan.label}
-                className="flex flex-col rounded-2xl border p-5"
-                style={
-                  plan.featured
-                    ? {
-                        backgroundColor: "var(--viz-primary)",
-                        borderColor: "var(--viz-primary)",
-                      }
-                    : {
-                        backgroundColor: "var(--viz-surface)",
-                        borderColor: "var(--viz-border)",
-                      }
-                }
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium" style={{ color: bodyColor }}>
-                    {plan.label}
-                  </span>
-
-                  {plan.featured && (
-                    <span
-                      className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
-                      style={{
-                        backgroundColor: "var(--viz-on-primary)",
-                        color: "var(--viz-primary)",
-                      }}
-                    >
-                      Popular
-                    </span>
-                  )}
-                </div>
+                <p
+                  className="text-2xl font-bold tracking-tight"
+                  style={{ color: "var(--viz-primary)" }}
+                >
+                  {card.metric}
+                </p>
 
                 <h3
-                  className="mt-3 text-lg font-bold"
-                  style={{ color: titleColor }}
+                  className="text-sm font-semibold"
+                  style={{ color: "var(--viz-text)" }}
                 >
-                  {plan.title}
+                  {card.title}
                 </h3>
 
                 <p
-                  className="mt-1 text-xs leading-relaxed"
-                  style={{ color: bodyColor }}
+                  className="text-xs leading-relaxed"
+                  style={{ color: "var(--viz-muted)" }}
                 >
-                  {plan.description}
+                  {card.description}
                 </p>
-
-                <ul className="mt-4 flex-1 space-y-2">
-                  {plan.points.map((point) => (
-                    <li
-                      key={point}
-                      className="flex items-start gap-2 text-xs"
-                      style={{ color: bodyColor }}
-                    >
-                      <Check
-                        className="mt-0.5 size-3.5 shrink-0"
-                        style={{
-                          color: plan.featured
-                            ? "var(--viz-on-primary)"
-                            : "var(--viz-primary)",
-                        }}
-                      />
-                      <span>{point}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <span
-                  className="mt-5 cursor-default rounded-lg px-3 py-2 text-center text-sm font-medium transition-opacity hover:opacity-90"
-                  style={
-                    plan.featured
-                      ? {
-                          backgroundColor: "var(--viz-on-primary)",
-                          color: "var(--viz-primary)",
-                        }
-                      : {
-                          backgroundColor: "var(--viz-primary)",
-                          color: "var(--viz-on-primary)",
-                        }
-                  }
-                >
-                  Get started
-                </span>
               </div>
-            );
-          })}
+
+              <div
+                className="mt-auto border-t p-4"
+                style={{
+                  borderColor: "var(--viz-border)",
+                  backgroundColor: "var(--viz-surface)",
+                }}
+              >
+                <ResultVisual visual={card.visual} />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>

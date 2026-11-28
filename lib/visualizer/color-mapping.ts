@@ -39,6 +39,9 @@ const clamp = (value: number, min: number, max: number) =>
  */
 const TEMPLATE_TUNING: Record<TemplateType, { backgroundSaturation: number }> = {
   website: { backgroundSaturation: 14 },
+  dashboard: { backgroundSaturation: 10 },
+  ecommerce: { backgroundSaturation: 12 },
+  mobile: { backgroundSaturation: 10 },
 };
 
 function analyze(hex: string): AnalyzedColor | null {

@@ -1,29 +1,29 @@
-import { Menu } from "lucide-react";
+import { Brain, Menu } from "lucide-react";
 
-const NAV_LINKS = ["Product", "Solutions", "Pricing", "Resources"];
+const NAV_LINKS = ["Product", "Solutions", "Resources", "Pricing"];
 
 export function WebsiteNavbar() {
   return (
     <header
-      className="flex items-center justify-between gap-4 px-6 py-4 @lg:px-10"
+      className="flex items-center justify-between gap-4 border-b px-6 py-3 @lg:px-10"
       style={{
-        borderBottom: "1px solid var(--viz-border)",
         backgroundColor: "var(--viz-background)",
+        borderColor: "var(--viz-border)",
       }}
     >
       <div className="flex items-center gap-2">
         <span
-          className="flex size-8 items-center justify-center rounded-lg text-sm font-bold"
+          className="flex size-8 items-center justify-center rounded-full"
           style={{
             backgroundColor: "var(--viz-primary)",
             color: "var(--viz-on-primary)",
           }}
         >
-          L
+          <Brain className="size-4" />
         </span>
 
         <span
-          className="text-base font-semibold"
+          className="text-base font-semibold tracking-tight"
           style={{ color: "var(--viz-text)" }}
         >
           Lumen
@@ -34,7 +34,7 @@ export function WebsiteNavbar() {
         {NAV_LINKS.map((link) => (
           <span
             key={link}
-            className="cursor-default opacity-90 transition-opacity hover:opacity-100"
+            className="cursor-default opacity-80 transition-opacity hover:opacity-100"
             style={{ color: "var(--viz-muted)" }}
           >
             {link}
@@ -60,10 +60,7 @@ export function WebsiteNavbar() {
           Get started
         </span>
 
-        <Menu
-          className="size-5 @md:hidden"
-          style={{ color: "var(--viz-text)" }}
-        />
+        <Menu className="size-5 @md:hidden" style={{ color: "var(--viz-text)" }} />
       </div>
     </header>
   );

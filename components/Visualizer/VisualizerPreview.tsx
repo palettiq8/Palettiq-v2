@@ -11,6 +11,9 @@ import type {
   ViewportSize,
 } from "@/lib/visualizer/types";
 
+import { DashboardTemplate } from "./Templates/DashboardTemplate/DashboardTemplate";
+import { EcommerceTemplate } from "./Templates/EcommerceTemplate/EcommerceTemplate";
+import { MobileAppTemplate } from "./Templates/MobileAppTemplate/MobileAppTemplate";
 import { WebsiteTemplate } from "./Templates/WebsiteTemplate/WebsiteTemplate";
 
 const VIEWPORT_WIDTHS: Record<ViewportSize, number> = {
@@ -28,6 +31,12 @@ interface VisualizerPreviewProps {
 
 function renderTemplate(template: TemplateType) {
   switch (template) {
+    case "dashboard":
+      return <DashboardTemplate />;
+    case "ecommerce":
+      return <EcommerceTemplate />;
+    case "mobile":
+      return <MobileAppTemplate />;
     case "website":
     default:
       return <WebsiteTemplate />;
@@ -42,21 +51,24 @@ export function VisualizerPreview({
 }: VisualizerPreviewProps) {
   const tokenStyle = buildPreviewTokenStyle(colors);
   const width = VIEWPORT_WIDTHS[viewport];
+  const isMobile = template === "mobile";
 
   return (
     <section className="min-h-0 min-w-0 flex-1">
       <ScrollArea className="h-full w-full">
         <div className="p-3 sm:p-4">
           <div
-            className="mx-auto flex flex-col overflow-hidden rounded-xl border bg-background shadow-sm transition-[width] duration-300"
-            style={{ width }}
+            className={`mx-auto flex flex-col overflow-hidden rounded-xl border bg-background shadow-sm ${
+              isMobile ? "w-full" : "transition-[width] duration-300"
+            }`}
+            style={isMobile ? undefined : { width }}
           >
             <div className="flex h-9 shrink-0 items-center gap-1.5 border-b bg-muted/40 px-3">
               <span className="size-2.5 rounded-full bg-red-400/70" />
               <span className="size-2.5 rounded-full bg-amber-400/70" />
               <span className="size-2.5 rounded-full bg-green-400/70" />
               <span className="ml-2 truncate text-[11px] text-muted-foreground">
-                {viewport}
+                {isMobile ? "Mobile UI" : viewport}
               </span>
             </div>
             
